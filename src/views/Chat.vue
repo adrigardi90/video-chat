@@ -23,65 +23,55 @@
         <ChatArea v-bind:messages="messages"></ChatArea>
       </md-app-content>
     </md-app>
-    <div class="text-area">
-      <div class="text-area__input">
-        <textarea name id cols="30" rows="10"></textarea>
-      </div>
-      <div>
-        <md-button class="md-primary">Send</md-button>
-      </div>
-    </div>
+
+    <MessageArea v-on:send-message="sendMessage($event)"></MessageArea>
   </div>
 </template>
 
 <script>
 import UserList from "./../components/UserList";
 import ChatArea from "./../components/ChatArea";
+import MessageArea from "./../components/MessageArea";
 
 export default {
   name: "chat",
   components: {
     UserList,
-    ChatArea
+    ChatArea,
+    MessageArea
+  },
+  sockets: {
+    newUser: function(data) {
+      this.users.length = 0;
+      this.users = data;
+    },
+    newMessage: function({message, username}) {
+      const msg = `${username}: ${message} `
+      this.messages.push(msg)
+    }
+  },
+  beforeCreate: function() {
+    this.$socket.emit("joinRoom", this.$store.state);
   },
   data: function() {
     return {
       room: this.$store.state.room,
-      users: [
-        {
-          name: "adri",
-          id: 1
-        },
-        {
-          name: "adri",
-          id: 2
-        },
-        {
-          name: "adri",
-          id: 3
-        }
-      ],
-      messages: [
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, ",
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, ",
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, ",
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, ",
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, ",
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, ",
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, ",
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, ",
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, ",
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, ",
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, ",
-        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quibusdam, "
-      ]
+      users: [],
+      messages: []
     };
   },
   methods: {
     onChange(val) {
       if (this.$store.state.room !== val) {
+        // add to the changeroom store the socket emit
         this.$store.dispatch("changeRoom", val);
       }
+    },
+    sendMessage(msg) {
+      this.$socket.emit("publicMessage", {
+        ...this.$store.state,
+        message: msg
+      });
     }
   }
 };
@@ -104,23 +94,6 @@ export default {
 
   .md-drawer {
     width: 270px;
-  }
-
-  & .text-area {
-    width: 85%;
-    margin: 0 auto;
-    display: flex;
-    max-width: 85%;
-    margin-top: 1rem;
-
-    &__input {
-      width: 100%;
-      & textarea {
-        width: 100%;
-        height: 59px;
-        border-color: rgba(0, 0, 0, 0.12);
-      }
-    }
   }
 }
 </style>

@@ -34,6 +34,8 @@ export default {
   },
   methods: {
     submitForm: function() {
+
+      // call login API where the user will be stored and execute
       this.$store.dispatch("joinRoom", {
         room: this.room,
         username: this.username
