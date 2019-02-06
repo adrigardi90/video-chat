@@ -16,7 +16,11 @@
       </md-app-toolbar>
 
       <md-app-drawer md-permanent="full">
-        <UserList v-bind:users="users" v-on:open-chat="openChat($event)"></UserList>
+        <UserList 
+            v-bind:users="users" 
+            v-bind:openPrivateChat="openPrivateChat"
+            v-on:open-chat="openChat($event)">
+        </UserList>
       </md-app-drawer>
 
       <md-app-content>
@@ -78,6 +82,7 @@ export default {
       if (this.$store.state.room !== val) {
         this.$socket.emit("leaveRoom", this.$store.state);
         this.$store.dispatch("changeRoom", val);
+        this.messages.length = 0;
         this.$socket.emit("joinRoom", this.$store.state);
       }
     },
@@ -108,6 +113,7 @@ export default {
     width: 85%;
     margin: 0 auto;
     height: 70vh;
+    max-width: 1300px;
   }
 
   .md-drawer {

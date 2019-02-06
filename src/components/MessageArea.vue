@@ -1,7 +1,7 @@
 <template>
   <div class="text-area">
     <div class="text-area__input">
-      <textarea name id cols="30" rows="10" v-model="message"></textarea>
+      <textarea name id cols="30" rows="10" v-model="message" v-on:keyup.enter="sendMessage()"></textarea>
     </div>
     <div>
       <md-button class="md-primary" v-on:click="sendMessage()">Send</md-button>
@@ -34,7 +34,8 @@ export default {
   width: 85%;
   margin: 0 auto;
   display: flex;
-  max-width: 85%;
+  //max-width: 85%;
+  max-width: 1300px;
   margin-top: 1rem;
 
   &__input {

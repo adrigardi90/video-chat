@@ -4,6 +4,22 @@
     right: unset;
 }
 
+.md-dialog{
+    top: 81%;
+    right: -135px;
+    height: 350px;
+    left: unset;
+}
 .md-dialog-container{
     border: 1px solid gainsboro;
+}
+
+.md-button.md-theme-default[disabled] .md-icon-font {
+    color: rgba(0,0,0,0.38) !important;
+    color: var(--md-theme-default-icon-disabled-on-background, rgba(0,0,0,0.38)) !important;
+}
+
+body{
+    min-height: unset;
+    overflow: hidden;
 }

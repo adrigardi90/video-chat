@@ -8,8 +8,9 @@
         <md-button
           class="md-icon-button md-list-action"
           v-if="$store.state.username !== user.username"
-          v-on:click="openChat(user.username)">
-        <md-icon class="md-primary">chat_bubble</md-icon>
+          v-on:click="openChat(user.username)"
+          :disabled="openPrivateChat === true">
+        <md-icon class="md-primary" >chat_bubble</md-icon>
         </md-button>
       </md-list-item>
     </div>
@@ -21,7 +22,9 @@
 export default {
   name: "UserList",
   props: {
-    users: Array
+    users: Array,
+    openPrivateChat: Boolean
+
   },
   created() {},
   methods: {
