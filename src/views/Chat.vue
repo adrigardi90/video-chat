@@ -3,9 +3,9 @@
     <div class="md-layout-item">
       <md-field>
         <label for="room">Room</label>
-        <md-select v-model="room" @md-selected="onChange" name="room" id="room">
-          <md-option value="fight-club">Fight Club</md-option>
-          <md-option value="godfather">Godfather</md-option>
+        <md-select v-model="room" @md-selected="onChangeRoom" name="room" id="room">
+          <md-option value="general">General</md-option>
+          <md-option value="sports">Sports</md-option>
         </md-select>
       </md-field>
     </div>
@@ -16,7 +16,7 @@
       </md-app-toolbar>
 
       <md-app-drawer md-permanent="full">
-        <UserList v-bind:users="users"></UserList>
+        <UserList v-bind:users="users" v-on:open-chat="openChat($event)"></UserList>
       </md-app-drawer>
 
       <md-app-content>
@@ -25,6 +25,8 @@
     </md-app>
 
     <MessageArea v-on:send-message="sendMessage($event)"></MessageArea>
+
+    <ChatDialog v-bind:showDialog="openPrivateChat"></ChatDialog>
   </div>
 </template>
 
@@ -32,22 +34,29 @@
 import UserList from "./../components/UserList";
 import ChatArea from "./../components/ChatArea";
 import MessageArea from "./../components/MessageArea";
+import ChatDialog from "./../components/ChatDialog";
 
 export default {
   name: "chat",
   components: {
     UserList,
     ChatArea,
-    MessageArea
+    MessageArea,
+    ChatDialog
   },
   sockets: {
     newUser: function(data) {
       this.users.length = 0;
       this.users = data;
     },
-    newMessage: function({message, username}) {
-      const msg = `${username}: ${message} `
-      this.messages.push(msg)
+    newMessage: function({ message, username }) {
+      const isMe = this.$store.state.username === username
+      const msg = isMe ? ` ${message}`: `${username.toUpperCase()} - ${message} `
+      const msgObj = {
+        msg,
+        own:isMe
+      };
+      this.messages.push(msgObj);
     }
   },
   beforeCreate: function() {
@@ -57,14 +66,16 @@ export default {
     return {
       room: this.$store.state.room,
       users: [],
-      messages: []
+      messages: [],
+      openPrivateChat: false
     };
   },
   methods: {
-    onChange(val) {
+    onChangeRoom(val) {
       if (this.$store.state.room !== val) {
-        // add to the changeroom store the socket emit
+        this.$socket.emit("leaveRoom", this.$store.state);
         this.$store.dispatch("changeRoom", val);
+        this.$socket.emit("joinRoom", this.$store.state);
       }
     },
     sendMessage(msg) {
@@ -72,6 +83,10 @@ export default {
         ...this.$store.state,
         message: msg
       });
+    },
+    openChat(user){
+      this.openPrivateChat = true
+      console.log(user)
     }
   }
 };

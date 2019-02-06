@@ -10,8 +10,8 @@
         <md-field>
           <label for="movie">Room</label>
           <md-select v-model="room" name="room" id="room">
-            <md-option value="fight-club">Fight Club</md-option>
-            <md-option value="godfather">Godfather</md-option>
+            <md-option value="general">General</md-option>
+            <md-option value="sports">Sports</md-option>
           </md-select>
         </md-field>
         <div class="options__submit">

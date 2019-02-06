@@ -6,7 +6,14 @@ const server = http.createServer(app);
 const cors = require('cors');
 const io = require('socket.io')(server);
 
-const users = [];
+const users = {
+    general : [
+
+    ],
+    sports: [
+
+    ]
+};
 
 const PORT = 3000;
 
@@ -32,10 +39,10 @@ io.on('connection', (socket) => {
             console.log(`user ${username} joined the room ${room}`);
 
             // push user for the suitable ROOM!!!
-            users.push({ username: username })
+            users[room].push({ username: username })
 
             // Notify all the users in the same room
-            io.sockets.in(room).emit('newUser', users);
+            io.sockets.in(room).emit('newUser', users[room]);
         });
 
     });
@@ -49,8 +56,17 @@ io.on('connection', (socket) => {
     })
 
     socket.on('leaveRoom', ({room, username}) => {
+        console.log(`user ${username} wants to leave the room ${room}`);
+
         socket.leave(room, () => {
+            console.log(`user ${username} left the room ${room}`);
+
+            let usersRoom = users[room]
             // delete user from the suitable array
+            usersRoom = usersRoom.filter( (user) => (user.username !== username))
+
+            // Notify all the users in the same room
+            io.sockets.in(room).emit('newUser', usersRoom);
         })
     })
 

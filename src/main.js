@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import VueSocketIO from 'vue-socket.io'
+import './styles/app.scss'
 
 // Socket config
 Vue.use(new VueSocketIO({
