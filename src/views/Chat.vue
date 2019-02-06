@@ -26,7 +26,10 @@
 
     <MessageArea v-on:send-message="sendMessage($event)"></MessageArea>
 
-    <ChatDialog v-bind:showDialog="openPrivateChat"></ChatDialog>
+    <ChatDialog 
+      v-bind:showDialog="openPrivateChat"
+      v-on:close-chat="openPrivateChat = false">
+    </ChatDialog>
   </div>
 </template>
 

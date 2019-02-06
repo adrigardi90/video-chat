@@ -6,19 +6,17 @@
       :md-click-outside-to-close="false"
     >
       <div>
-        <md-avatar class="md-avatar-icon md-primary">
-          <md-icon>folder</md-icon>
-        </md-avatar>
+        <md-button class="md-icon-button" v-on:click="closeChat()">
+          <md-icon>close</md-icon>
+        </md-button>
       </div>
       <md-dialog-content>whateverrr</md-dialog-content>
-
+<!-- 
       <md-dialog-actions>
         <md-button class="md-primary" @click="showDialog = false">Close</md-button>
         <md-button class="md-primary" @click="showDialog = false">Save</md-button>
-      </md-dialog-actions>
+      </md-dialog-actions> -->
     </md-dialog>
-
-    <md-button class="md-primary md-raised" @click="showDialog = true">Show Dialog</md-button>
   </div>
 </template>
 
@@ -33,13 +31,18 @@ export default {
     return {
     };
   },
-  created() {}
+  created() {},
+  methods: {
+    closeChat(){
+      this.$emit('close-chat')
+    }
+  }
 };
 </script>
 
 <style lang="scss" scoped>
-.md-overlay {
-    position: absolute !important;
+button {
+  float: right;
 }
 </style>
 
