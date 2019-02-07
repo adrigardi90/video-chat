@@ -16,11 +16,11 @@
       </md-app-toolbar>
 
       <md-app-drawer md-permanent="full">
-        <UserList 
-            v-bind:users="users" 
-            v-bind:openPrivateChat="openPrivateChat"
-            v-on:open-chat="openChat($event)">
-        </UserList>
+        <UserList
+          v-bind:users="users"
+          v-bind:openPrivateChat="openPrivateChat.chat"
+          v-on:open-chat="openChat($event)"
+        ></UserList>
       </md-app-drawer>
 
       <md-app-content>
@@ -30,10 +30,7 @@
 
     <MessageArea v-on:send-message="sendMessage($event)"></MessageArea>
 
-    <ChatDialog 
-      v-bind:showDialog="openPrivateChat"
-      v-on:close-chat="openPrivateChat = false">
-    </ChatDialog>
+    <ChatDialog v-bind:showDialog="openPrivateChat" v-on:close-chat="openPrivateChat.chat = false"></ChatDialog>
   </div>
 </template>
 
@@ -57,13 +54,32 @@ export default {
       this.users = data;
     },
     newMessage: function({ message, username }) {
-      const isMe = this.$store.state.username === username
-      const msg = isMe ? ` ${message}`: `${username.toUpperCase()} - ${message} `
+      const isMe = this.$store.state.username === username;
+      const msg = isMe
+        ? ` ${message}`
+        : `${username.toUpperCase()} - ${message} `;
       const msgObj = {
         msg,
-        own:isMe
+        own: isMe
       };
       this.messages.push(msgObj);
+    },
+    privateChat: function({ username, to }) {
+      const isMe = this.$store.state.username === to;
+      if (isMe && !this.openPrivateChat.chat) {
+
+        // Join private room
+        this.$socket.emit("joinPrivateRoom", {
+          to: this.$store.state.username,
+          room: this.$store.state.room,
+          username
+        });
+
+        // open dialog
+        this.openPrivateChat.chat = true
+        this.openPrivateChat.user = username
+
+      }
     }
   },
   beforeCreate: function() {
@@ -74,7 +90,10 @@ export default {
       room: this.$store.state.room,
       users: [],
       messages: [],
-      openPrivateChat: false
+      openPrivateChat: {
+        chat: false,
+        user: null
+      }
     };
   },
   methods: {
@@ -92,13 +111,18 @@ export default {
         message: msg
       });
     },
-    openChat(user){
-      this.openPrivateChat = true
-      console.log(user)
+    openChat(user) {
+      this.openPrivateChat = {
+        chat: true,
+        user: user
+      };
+      console.log(user);
     }
   }
 };
 </script>
+
+
 
 <style lang="scss" scoped>
 .page-container {

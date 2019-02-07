@@ -70,8 +70,25 @@ io.on('connection', (socket) => {
         })
     })
 
-    //private message
-    //io.to(data.room).emit('newUser', data);
+    // Listening for private chats
+    socket.on('joinPrivateRoom', ({username, room, to}) => {
+        console.log(`user ${username} wants to have a private chat with ${to}`);
+
+        // Join the room
+        socket.join(to, () => {
+            
+            // Notify the user to talk with
+            io.sockets.in(room).emit('privateChat', {
+                username,
+                to
+            });
+        });
+
+         // io.to(to).emit('privateChat', {
+            //     username,
+            // })
+
+    });
 })
 
 server.listen(PORT, () => console.log(`Server Listening on port ${PORT}`));

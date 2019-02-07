@@ -5,13 +5,20 @@
 }
 
 .md-dialog{
-    top: 81%;
+    top: calc(100vh - 180px);
     right: -135px;
     height: 350px;
     left: unset;
 }
 .md-dialog-container{
     border: 1px solid gainsboro;
+}
+
+.md-dialog-actions {
+    padding: 0;
+}
+.md-dialog-content {
+    padding: 1rem;
 }
 
 .md-button.md-theme-default[disabled] .md-icon-font {
