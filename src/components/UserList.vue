@@ -24,7 +24,6 @@ export default {
   props: {
     users: Array,
     openPrivateChat: Boolean
-
   },
   created() {},
   methods: {

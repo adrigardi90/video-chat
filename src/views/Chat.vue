@@ -30,7 +30,7 @@
 
     <MessageArea v-on:send-message="sendMessage($event)"></MessageArea>
 
-    <ChatDialog v-bind:showDialog="openPrivateChat" v-on:close-chat="openPrivateChat.chat = false"></ChatDialog>
+    <ChatDialog v-bind:showDialog="openPrivateChat" v-on:close-chat="closePrivateChat()"></ChatDialog>
   </div>
 </template>
 
@@ -53,32 +53,66 @@ export default {
       this.users.length = 0;
       this.users = data;
     },
+
     newMessage: function({ message, username }) {
       const isMe = this.$store.state.username === username;
-      const msg = isMe
-        ? ` ${message}`
-        : `${username.toUpperCase()} - ${message} `;
-      const msgObj = {
-        msg,
-        own: isMe
-      };
+      const msg = isMe ? ` ${message}`: `${username.toUpperCase()} - ${message} `;
+      const msgObj = { msg, isMe };
       this.messages.push(msgObj);
     },
+
     privateChat: function({ username, to }) {
       const isMe = this.$store.state.username === to;
       if (isMe && !this.openPrivateChat.chat) {
-
         // Join private room
         this.$socket.emit("joinPrivateRoom", {
           to: this.$store.state.username,
-          room: this.$store.state.room,
+          room: null,
           username
         });
+      }
+    },
 
-        // open dialog
-        this.openPrivateChat.chat = true
-        this.openPrivateChat.user = username
+    privateMessage: function({ privateMessage, to, from, room }) {
+      console.log(`New private message from ${from} in the room ${room}`);
 
+      // Open private chat with the info
+      if (!this.openPrivateChat.chat) {
+        this.openPrivateChat = {
+          ...this.openPrivateChat,
+          chat: true,
+          user: from,
+          room: room
+        };
+      }
+      // else if (
+      //   this.openPrivateChat.chat &&
+      //   this.$store.state.username !== to &&
+      //   this.openPrivateChat.room !== room &&
+      //   this.openPrivateChat.room !== from
+      // ) {
+      //   console.log("talking with someone else");
+
+      //   return;
+      // }
+
+      const isMe = this.$store.state.username === to;
+      const msgObj = {
+        msg: privateMessage,
+        isMe: !isMe
+      };
+      this.openPrivateChat.msg.push(msgObj);
+    },
+
+    leavePrivateRoom: function({ privateMessage, to, from, room }) {
+      if (from === this.openPrivateChat.user) {
+        this.openPrivateChat.msg.push({
+          msg: privateMessage
+        });
+        this.openPrivateChat = {
+          ...this.openPrivateChat,
+          closed: true
+        };
       }
     }
   },
@@ -92,7 +126,10 @@ export default {
       messages: [],
       openPrivateChat: {
         chat: false,
-        user: null
+        user: null,
+        msg: [],
+        room: null,
+        closed: false
       }
     };
   },
@@ -113,10 +150,28 @@ export default {
     },
     openChat(user) {
       this.openPrivateChat = {
+        ...this.openPrivateChat,
         chat: true,
-        user: user
+        user: user,
+        room: user // The room is the username who talk with
       };
-      console.log(user);
+    },
+    closePrivateChat() {
+      // leavePrivate room emit
+      this.$socket.emit("leavePrivateRoom", {
+        room: this.openPrivateChat.room,
+        to: this.openPrivateChat.room,
+        from: this.$store.state.username
+      });
+
+      this.openPrivateChat = {
+        ...this.openPrivateChat,
+        chat: false,
+        closed: false,
+        user: null,
+        msg: [],
+        room: null
+      };
     }
   }
 };
