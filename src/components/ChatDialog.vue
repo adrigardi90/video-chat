@@ -10,7 +10,10 @@
     </div>
     <div class="chat-dialog__right">
       <div class="chat-dialog__options">
-        <md-button class="md-icon-button chat-dialog__video" v-on:click="videoCall = true">
+        <md-button 
+            class="md-icon-button chat-dialog__video" 
+            v-on:click="videoCall = true" 
+            :disabled="showDialog.msg.length === 0">
           <md-icon>video_call</md-icon>
         </md-button>
         <md-button class="md-icon-button chat-dialog__exit" v-on:click="closeChat()">
@@ -48,11 +51,11 @@ export default {
   },
   props: {
     showDialog: Object,
-    videoCall: false
   },
   data: function() {
     return {
-      privateMessage: ""
+      privateMessage: "",
+      videoCall: false
     };
   },
   methods: {

@@ -15,7 +15,10 @@ export default new Router({
     {
       path: '/',
       name: 'home',
-      component: Home
+      component: Home,
+      beforeEnter: (to, from, next) => {
+        store.state.room && store.state.username ? next('/chat') : next()
+      }
     },
     {
       path: '/chat',
