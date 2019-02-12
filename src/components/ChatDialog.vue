@@ -6,7 +6,7 @@
       :md-click-outside-to-close="false"
     >
     <div v-if="videoCall" class="chat-dialog__left">
-      hahsdfhashfd
+      <VideoArea></VideoArea>
     </div>
     <div class="chat-dialog__right">
       <div class="chat-dialog__options">
@@ -43,11 +43,13 @@
 
 <script>
 import ChatArea from "./ChatArea";
+import VideoArea from './VideoArea'
 
 export default {
   name: "ChatDialog",
   components: {
-    ChatArea
+    ChatArea,
+    VideoArea
   },
   props: {
     showDialog: Object,
@@ -130,7 +132,7 @@ button {
   }
 
   &__left{
-    width: 300px;
+    width: 450px;
   }
 }
 </style>
