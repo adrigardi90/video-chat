@@ -111,6 +111,14 @@ io.on('connection', (socket) => {
         // Private message to the user
         io.to(room).emit('privateMessage', { to, privateMessage, from, room })
     })
+
+    // Private message for Signaling PeerConnection
+    socket.on('privateMessagePCSignaling', ({ desc, to, from, room }) => {
+        console.log(`User ${from} sends an offer ${to}`);
+
+        // Private signaling to the user
+        io.to(room).emit('privateMessagePCSignaling', { desc, to, from})
+    })
 })
 
 server.listen(PORT, () => console.log(`Server Listening on port ${PORT}`));
