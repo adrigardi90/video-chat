@@ -1,11 +1,9 @@
 <template>
   <div class="video">
     <div class="video__partner">
-      <rotate-square5 v-if="!remoteVideo" class="video__spinner"></rotate-square5>
-      <!-- <video v-else id="remoteVideo" class="video__spinner" autoplay :srcObject.prop="remoteVideo"></video> -->
+      <rotate-square5 v-if="!remoteStream" class="video__spinner"></rotate-square5>
       <video id="remoteVideo" class="video__spinner" autoplay></video>
     </div>
-    <!-- <video id="localVideo" class="video__myself" autoplay :sr∂cObject.prop="myVideo"></video> -->
     <video id="localVideo" class="video__myself" autoplay></video>
   </div>
 </template>
@@ -28,8 +26,8 @@ export default {
   },
   data: () => ({
     // videos
-    myVideo: undefined,
-    remoteVideo: undefined,
+    myVideo: {},
+    remoteVideo: {},
 
     // Media config
     constraints: {
@@ -37,8 +35,9 @@ export default {
       video: true
     },
 
-    // local video stream
+    // local & remote video stream
     localStream: undefined,
+    remoteStream: undefined,
 
     // STUN ice servers
     configuration: servers,
@@ -54,29 +53,6 @@ export default {
 
     username: ""
   }),
-  // async created() {
-
-  //   this.username = this.$store.state.username
-
-  //   // Peer connection
-  //   // this.pc = new RTCPeerConnection(this.configuration);
-
-  //   // this.pc.ontrack = this.onRemoteTrack.bind(this);
-  //   // this.onIceCandidates();
-
-  //   // The person who call
-  //   if (!this.videoAnswer.video) {
-  //     // Handler of negotiationneeded event to create an offer to the other person
-  //     // this.listenOnNegotiation();
-  //     await this.getUserMedia();
-  //     console.log('after')
-
-  //     // The person who get the call
-  //   } else {
-  //     this.handleAnser();
-  //   }
-  // },
-
   async created() {
     this.username = this.$store.state.username;
 
@@ -96,29 +72,31 @@ export default {
     this.remoteVideo = document.getElementById("remoteVideo");
   },
   methods: {
-    // async getUserMedia() {
-    //   log('Requesting local video stream');
+    async callFriend() {
+      log(`${this.username} wants to start a call`);
+      await this.getAudioVideo();
+      this.createPeerConnection();
+      this.addLocalStream();
 
-    //   if ("mediaDevices" in navigator) {
-    //     try {
-    //       // Get camera/audio access
-    //       const stream = await navigator.mediaDevices.getUserMedia(
-    //         this.constraints
-    //       );
+      // Event listeners
+      this.onIceCandidates();
+      this.onAddStream();
 
-    //       log('Received local video stream')
+      await this.createOffer();
+    },
+    async handleAnser() {
+      log(`${this.username} gets an offer from ${this.videoAnswer.from}`);
+      await this.getAudioVideo();
+      this.createPeerConnection();
+      this.addLocalStream();
 
-    //       // Add tracks to the connection
-    //       stream.getTracks().forEach(track => this.pc.addTrack(track, stream));
+      // Event listeners
+      this.onIceCandidates();
+      this.onAddStream();
 
-    //       // Add stream to video tag
-    //       //this.myVideo = stream;
-    //       this.myVideo.srcObject = stream;
-    //     } catch (error) {
-    //       console.log(`getUserMedia error: ${error}`);
-    //     }
-    //   }
-    // },
+      await this.setRemoteDescription(this.videoAnswer.remoteDesc);
+      this.createAnswer();
+    },
     async getUserMedia() {
       log(`Requesting ${this.username} video stream`);
 
@@ -134,12 +112,6 @@ export default {
           log(`getUserMedia error: ${error}`);
         }
       }
-    },
-    async callFriend() {
-      log(`${this.username} wants to start a call`);
-      this.getAudioVideo();
-      this.createPeerConnection();
-      this.createOffer();
     },
 
     getAudioVideo() {
@@ -199,81 +171,17 @@ export default {
       });
     },
 
-    async listenOnNegotiation() {
-      this.pc.onnegotiationneeded = async () => {
-        try {
-          await this.pc.setLocalDescription(await this.pc.createOffer());
-
-          // send the offer to the other peer
-          this.$socket.emit("privateMessagePCSignaling", {
-            desc: this.pc.localDescription,
-            to: this.to,
-            from: this.$store.state.username,
-            room: this.room
-          });
-        } catch (err) {
-          console.log(`onnegotiationneeded error: ${err}`);
-        }
-      };
-    },
-    // async handleAnser() {
-    //   await this.pc.setRemoteDescription(this.videoAnswer.remoteDesc);
-    //   this.getUserMedia();
-    //   await this.pc.setLocalDescription(await this.pc.createAnswer());
-
-    //   // send the asnwer to the other peer
-    //   this.$socket.emit("privateMessagePCSignaling", {
-    //     desc: this.pc.localDescription,
-    //     to: this.to,
-    //     from: this.$store.state.username,
-    //     room: this.room
-    //   });
-    // },
-    // async handleAnser() {
-    //   await this.pc.setRemoteDescription(this.videoAnswer.remoteDesc);
-    //   this.getUserMedia();
-    //   await this.pc.setLocalDescription(await this.pc.createAnswer());
-    //   // send the asnwer to the other peer
-    //   this.$socket.emit("privateMessagePCSignaling", {
-    //     desc: this.pc.localDescription,
-    //     to: this.to,
-    //     from: this.$store.state.username,
-    //     room: this.room
-    //   });
-    // },
-
-    async handleAnser() {
-      log(`${this.username} gets an offer from ${this.videoAnswer.from}`);
-      await this.getAudioVideo();
-      this.createPeerConnection();
-      await this.setRemoteDescription(this.videoAnswer.remoteDesc);
-      this.createAnswer();
-    },
-
     async setRemoteDescription(remoteDesc) {
       try {
         log(`${this.username} setRemoteDescription: start`);
-        await this.pc.setRemoteDescription(this.videoAnswer.remoteDesc);
+        await this.pc.setRemoteDescription(remoteDesc);
         log(`${this.username} setRemoteDescription: finished`);
       } catch (error) {
-        log(`Error setting the RemoteDescription in ${this.username}. Error: ${error}`);
+        log(`Error setting the RemoteDescription in ${this.username}. Error: ${error}`
+        );
       }
     },
 
-    async addCandidate(candidate) {
-      try {
-        await this.pc.addIceCandidate(candidate);
-      } catch (error) {}
-    },
-    onRemoteTrack(event) {
-      // once media for a remote track arrives, show it in the remote video element
-      //this.pc.ontrack = function(event) {
-      // don't set srcObject again if it is already set.
-      if (this.remoteVideo) return;
-      // this.remoteVideo = event.streams[0];
-      this.remoteVideo.srcObject = event.streams[0];
-      //};
-    },
     onIceCandidates() {
       // send any ice candidates to the other peer
       this.pc.onicecandidate = ({ candidate }) => {
@@ -284,7 +192,31 @@ export default {
           room: this.room
         });
       };
-    }
+    },
+
+    async addCandidate(candidate) {
+      try {
+        log(`${this.username} added a candidate`);
+        await this.pc.addIceCandidate(candidate);
+      } catch (error) {
+        log(`Error adding a candidate in ${this.username}. Error: ${error}`)
+      }
+    },
+
+    onAddStream() {
+      this.pc.onaddstream = this.onAddBindStream.bind(this)
+    },
+    
+    onAddBindStream(event){
+        if(!this.remoteVideo.srcObject && event.stream){
+          this.remoteStream = event.stream
+          this.remoteVideo.srcObject = this.remoteStream ;
+        }
+    },
+
+    addLocalStream(){
+      this.pc.addStream(this.localStream)
+    },
   },
 
   watch: {
