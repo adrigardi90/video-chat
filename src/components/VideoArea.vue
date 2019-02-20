@@ -102,9 +102,7 @@ export default {
 
       if ("mediaDevices" in navigator) {
         try {
-          const stream = await navigator.mediaDevices.getUserMedia(
-            this.constraints
-          );
+          const stream = await navigator.mediaDevices.getUserMedia(this.constraints);
           this.myVideo.srcObject = stream;
           this.localStream = stream;
           log("Received local video stream");
@@ -217,18 +215,28 @@ export default {
     addLocalStream(){
       this.pc.addStream(this.localStream)
     },
+
+    resetConnection(){
+      this.pc.close();
+      this.pc = null;
+      //this.localStream.stop();
+      this.$emit("closeVideo");
+    }
   },
 
   watch: {
     videoAnswer: function(newVal, oldVal) {
       const desc = newVal.remoteDesc;
       const candidate = newVal.candidate;
+      const close = newVal.close;
       if (desc !== undefined && desc !== oldVal.remoteDesc) {
         this.setRemoteDescription(desc);
       }
-
       if (candidate !== undefined && candidate !== oldVal.candidate) {
         this.addCandidate(candidate);
+      }
+      if(close && close !== oldVal.close){
+        this.resetConnection();
       }
     }
   }

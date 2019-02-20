@@ -1,7 +1,7 @@
 <template>
   <div class="message">
-    <div v-for="msg in messages" v-bind:key="msg.msg" class="message__container">
-      <p class="message__text" v-bind:class="{ own: msg.isMe, other: !msg.isMe}">{{msg.msg}}</p>
+    <div v-for="msg in messages" :key="msg.msg" class="message__container">
+      <p class="message__text" :class="{ own: msg.isMe, other: !msg.isMe}">{{msg.msg}}</p>
     </div>
   </div>
 </template>

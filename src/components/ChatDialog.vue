@@ -7,21 +7,30 @@
     >
       <div v-if="videoCall" class="chat-dialog__left">
         <VideoArea
-          v-bind:room="showDialog.room"
-          v-bind:to="showDialog.user"
-          v-bind:videoAnswer="videoAsnwer"
+          :room="showDialog.room"
+          :to="showDialog.user"
+          :videoAnswer="videoAnswer"
+          @closeVideo="video(false)"
         ></VideoArea>
       </div>
       <div class="chat-dialog__right">
         <div class="chat-dialog__options">
           <md-button
             class="md-icon-button chat-dialog__video"
-            v-on:click="showVideoCall()"
+            @click="video(true)"
             :disabled="showDialog.msg.length === 0"
+            v-if="!this.videoCall"
           >
             <md-icon>video_call</md-icon>
           </md-button>
-          <md-button class="md-icon-button chat-dialog__exit" v-on:click="closeChat()">
+          <md-button
+            class="md-icon-button chat-dialog__video"
+            @click="videoAnswer = {...videoAnswer, close: true}"
+            v-if="this.videoCall"
+          >
+            <md-icon>videocam_off</md-icon>
+          </md-button>
+          <md-button class="md-icon-button chat-dialog__exit" @click="closeChat()">
             <md-icon>close</md-icon>
           </md-button>
         </div>
@@ -35,7 +44,7 @@
             class="chat-dialog__text"
             v-model="privateMessage"
             :disabled="showDialog.closed"
-            v-on:keyup.enter="sendPrivateMessage()"
+            @keyup.enter="sendPrivateMessage()"
           ></textarea>
         </md-dialog-actions>
       </div>
@@ -62,14 +71,13 @@ export default {
       if (from !== this.$store.state.username) {
         try {
           if (desc) {
-
             // If we have an income call
             if (desc.type === "offer") {
               //open videochat (maybe ask before?)
-              this.videoAsnwer = {
+              this.videoAnswer = {
                 ...this.videoCall,
                 video: true,
-                remoteDesc: desc, 
+                remoteDesc: desc,
                 from
               };
               this.videoCall = true;
@@ -77,23 +85,21 @@ export default {
               // If we have a response
             } else if (desc.type === "answer") {
               // Set
-              this.videoAsnwer = {
-                ...this.videoAsnwer,
+              this.videoAnswer = {
+                ...this.videoAnswer,
                 remoteDesc: desc
               };
-
             } else {
               console.log("Unsupported SDP type");
             }
-            
-          }  else if (candidate) {
-              this.videoAsnwer = {
-                ...this.videoAsnwer,
-                candidate
-              }
+          } else if (candidate) {
+            this.videoAnswer = {
+              ...this.videoAnswer,
+              candidate
+            };
           }
         } catch (error) {
-          console.log(error)
+          console.log(error);
         }
       }
     }
@@ -102,24 +108,23 @@ export default {
     return {
       privateMessage: "",
       videoCall: false,
-      videoAsnwer: {
+      videoAnswer: {
         video: undefined,
         remoteDesc: undefined,
-        candidate: undefined
+        candidate: undefined,
+        close: false
       }
     };
   },
   methods: {
     closeChat() {
+      this.resetVideoAnswer()
+      this.videoCall = false
+      this.privateMessage = ''
       this.$emit("close-chat");
     },
     sendPrivateMessage() {
-      console.log(
-        `${this.$store.state.username} want to send a private message to ${
-          this.showDialog.user
-        }`
-      );
-
+      console.log(`${this.$store.state.username} want to send a private message to ${this.showDialog.user}`);
       this.$socket.emit("privateMessage", {
         privateMessage: this.privateMessage,
         to: this.showDialog.user,
@@ -129,13 +134,26 @@ export default {
 
       this.privateMessage = "";
     },
-    showVideoCall() {
-      this.videoCall = true;
-      this.videoAsnwer = {
-        ...this.videoAsnwer,
-        video: false
+    video(value) {
+      this.videoCall = value;
+      value
+        ? (this.videoAnswer = {
+            ...this.videoAnswer,
+            video: !value
+          })
+        : this.resetVideoAnswer();
+    },
+    resetVideoAnswer() {
+      this.videoAnswer = {
+        ...this.videoAnswer,
+        video: undefined,
+        remoteDesc: undefined,
+        candidate: undefined,
+        close: false
       };
-    }
+      this.privateMessage = `${this.$store.state.username} has closed the video`
+      this.sendPrivateMessage()
+    },
   },
   watch: {
     showDialog: function(newVal, oldVal) {

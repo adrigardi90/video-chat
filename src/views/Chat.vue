@@ -17,20 +17,20 @@
 
       <md-app-drawer md-permanent="full">
         <UserList
-          v-bind:users="users"
-          v-bind:openPrivateChat="openPrivateChat.chat"
-          v-on:open-chat="openChat($event)"
+          :users="users"
+          :openPrivateChat="openPrivateChat.chat"
+          @open-chat="openChat($event)"
         ></UserList>
       </md-app-drawer>
 
       <md-app-content>
-        <ChatArea v-bind:messages="messages"></ChatArea>
+        <ChatArea :messages="messages"></ChatArea>
       </md-app-content>
     </md-app>
 
-    <MessageArea v-on:send-message="sendMessage($event)"></MessageArea>
+    <MessageArea @send-message="sendMessage($event)"></MessageArea>
 
-    <ChatDialog v-bind:showDialog="openPrivateChat" v-on:close-chat="closePrivateChat()"></ChatDialog>
+    <ChatDialog :showDialog="openPrivateChat" @close-chat="closePrivateChat()"></ChatDialog>
   </div>
 </template>
 
