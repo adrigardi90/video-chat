@@ -1,5 +1,5 @@
 const express = require('express');
-const roomAPI = express.Router();
+const roomRouter = express.Router();
 
 const rooms = [
     {
@@ -7,17 +7,18 @@ const rooms = [
         name: 'GENERAL'
     },
     {
-        id: 2, 
+        id: 2,
         name: 'SPORTS'
     },
     {
-        id: 3, 
+        id: 3,
         name: 'GAMES'
     },
 ]
 
 // route for get rooms
+roomRouter.get('/', () => {
+    console.log('ok')
+})
 
-
-
-module.export = roomAPI
+module.exports = roomRouter

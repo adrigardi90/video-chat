@@ -1,12 +1,15 @@
 
 const express = require('express');
-const userAPI = express.Router();
+const userRouter = express.Router();
 
 
 // Login
 
 
 // Logout
+userRouter.get('/', () => {
+    console.log('ok')
+})
 
 
-module.export = userAPI
+module.exports = userRouter
