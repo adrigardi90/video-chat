@@ -76,6 +76,12 @@ export default {
     privateMessage: function({ privateMessage, to, from, room }) {
       console.log(`New private message from ${from} in the room ${room}`);
 
+      const isObj = typeof privateMessage === 'object'
+      const isForMe = this.$store.state.username === to;
+      const isFromMe = this.$store.state.username === from;
+
+      if(isObj && isFromMe) return false
+
       // Open private chat with the info
       if (!this.openPrivateChat.chat) {
         this.openPrivateChat = {
@@ -85,7 +91,8 @@ export default {
           room: room
         };
       }
-      // else if (
+      // Is already talking
+      else {
       //   this.openPrivateChat.chat &&
       //   this.$store.state.username !== to &&
       //   this.openPrivateChat.room !== room &&
@@ -94,25 +101,21 @@ export default {
       //   console.log("talking with someone else");
 
       //   return;
-      // }
+      }
 
-      const isMe = this.$store.state.username === to;
       const msgObj = {
-        msg: privateMessage,
-        isMe: !isMe
+        msg: isObj ? privateMessage.msg : privateMessage,
+        isMe: !isForMe
       };
       this.openPrivateChat.msg.push(msgObj);
     },
 
     leavePrivateRoom: function({ privateMessage, to, from, room }) {
-      if (from === this.openPrivateChat.user) {
+      if (from === this.openPrivateChat.user && this.openPrivateChat.chat) {
         this.openPrivateChat.msg.push({
           msg: privateMessage
         });
-        this.openPrivateChat = {
-          ...this.openPrivateChat,
-          closed: true
-        };
+        this.openPrivateChat = { ...this.openPrivateChat, closed: true };
       }
     }
   },
@@ -157,6 +160,7 @@ export default {
       };
     },
     closePrivateChat() {
+      
       // leavePrivate room emit
       this.$socket.emit("leavePrivateRoom", {
         room: this.openPrivateChat.room,
