@@ -62,15 +62,15 @@ export default {
     },
 
     privateChat: function({ username, to }) {
-      const isMe = this.$store.state.username === to;
-      if (isMe && !this.openPrivateChat.chat) {
+      const isForMe = this.$store.state.username === to;
+      if (isForMe && !this.openPrivateChat.chat) {
         // Join private room
         this.$socket.emit("joinPrivateRoom", {
           to: this.$store.state.username,
           room: null,
           username
         });
-      }
+      } 
     },
 
     privateMessage: function({ privateMessage, to, from, room }) {
@@ -91,17 +91,6 @@ export default {
           room: room
         };
       }
-      // Is already talking
-      else {
-      //   this.openPrivateChat.chat &&
-      //   this.$store.state.username !== to &&
-      //   this.openPrivateChat.room !== room &&
-      //   this.openPrivateChat.room !== from
-      // ) {
-      //   console.log("talking with someone else");
-
-      //   return;
-      }
 
       const msgObj = {
         msg: isObj ? privateMessage.msg : privateMessage,
@@ -110,8 +99,8 @@ export default {
       this.openPrivateChat.msg.push(msgObj);
     },
 
-    leavePrivateRoom: function({ privateMessage, to, from, room }) {
-      if (from === this.openPrivateChat.user && this.openPrivateChat.chat) {
+    leavePrivateRoom: function({ privateMessage, to, from }) {
+      if ((from === this.openPrivateChat.user || from === this.$store.state.username) && this.openPrivateChat.chat) {
         this.openPrivateChat.msg.push({
           msg: privateMessage
         });
@@ -163,7 +152,7 @@ export default {
       
       // leavePrivate room emit
       this.$socket.emit("leavePrivateRoom", {
-        room: this.openPrivateChat.room,
+        room: this.$store.state.room,
         to: this.openPrivateChat.room,
         from: this.$store.state.username
       });

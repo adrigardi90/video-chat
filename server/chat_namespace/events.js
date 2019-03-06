@@ -16,7 +16,7 @@ const joinRoom = (socket, namespace) => ({ username, room }) => {
         console.log(`user ${username} joined the room ${room}`);
 
         // push user for the suitable ROOM!!!
-        users[room].push({ username: username })
+        users[room].push({ username: username, privateChat: false })
 
         // Notify all the users in the same room
         namespace.sockets.in(room).emit('newUser', users[room]);
@@ -53,6 +53,29 @@ const joinPrivateRoom = (socket, namespace) => ({ username, room, to }) => {
     socket.join(to, () => {
 
         if (room !== null) {
+
+            let usersRoom = users[room];
+            let userToTalk = usersRoom.find(user => user.username === to)
+
+            // If he is already talking
+            if (userToTalk.privateChat) {
+                
+                namespace.to(to).emit('leavePrivateRoom', {
+                    to,
+                    privateMessage: `${to} is already talking`,
+                    from: username,
+                    room
+                })
+            
+                socket.leave(to, () => {
+                    console.log(`user ${username} force to left the room ${to}`);
+                })
+
+                return;
+            }
+
+            userToTalk.privateChat = true
+
             // Notify the user to talk with (in the same main room)
             namespace.sockets.in(room).emit('privateChat', {
                 username,
@@ -63,17 +86,21 @@ const joinPrivateRoom = (socket, namespace) => ({ username, room, to }) => {
 }
 
 const leavePrivateRoom = (socket, namespace) => ({ room, from, to }) => {
-    console.log(`user ${from} wants to leave the private chat with ${room}`);
+    console.log(`user ${from} wants to leave the private chat with ${to}`);
 
-    namespace.to(room).emit('leavePrivateRoom', {
+    let usersRoom = users[room];
+    let userToTalk = usersRoom.find(user => user.username === to)
+
+    userToTalk.privateChat = false
+
+    namespace.to(to).emit('leavePrivateRoom', {
         to,
-        privateMessage: `${from} has closed the chat`,
-        from,
-        room
+        privateMessage: `${to} has closed the chat`,
+        from
     })
 
-    socket.leave(room, () => {
-        console.log(`user ${from} left the private chat with ${room}`);
+    socket.leave(to, () => {
+        console.log(`user ${from} left the private chat with ${to}`);
     })
 }
 
