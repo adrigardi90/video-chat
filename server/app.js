@@ -4,6 +4,7 @@ const app = express();
 const io = app.io = require('socket.io')();
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const users = require('./routes/user');
 const rooms = require('./routes/room');
@@ -25,6 +26,10 @@ app.use((req, res, next) => {
  */
 app.use('/user', users)
 app.use('/rooms', rooms)
+
+
+// Static routing
+app.use(express.static(path.join(__dirname, '../dist')));
 
 
 /**

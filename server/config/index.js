@@ -1,6 +1,6 @@
 
 const CONFIG = {
-    PORT: 3000 || process.env.PORT,
+    PORT: process.env.PORT || 3000,
     CHAT_NAMESPACE: '/chat'
 }
 

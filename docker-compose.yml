@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+
+  chat1:
+    build: .
+    ports: 
+      - 3000:3000
+    networks:
+      - video-chat
+    environment:
+      PORT: 3000
+
+  chat2:
+    build: .
+    ports: 
+      - 3001:3001
+    networks:
+      - video-chat
+    environment:
+      PORT: 3001
+
+networks:
+  video-chat:
