@@ -1,3 +1,6 @@
+
+const ChatRedis = require('../redis')
+
 const users = {
     general: [
 
@@ -15,11 +18,15 @@ const joinRoom = (socket, namespace) => ({ username, room }) => {
     socket.join(room, () => {
         console.log(`user ${username} joined the room ${room}`);
 
-        // push user for the suitable ROOM!!!
-        users[room].push({ username: username, privateChat: false })
+        // add user for the suitable ROOM
+        ChatRedis.addUser(room, socket.id, { username: username, privateChat: false })
 
-        // Notify all the users in the same room
-        namespace.sockets.in(room).emit('newUser', users[room]);
+        ChatRedis.getUsers(room).then(users => {
+            if (users === null) return
+
+            // Notify all the users in the same room
+            namespace.sockets.in(room).emit('newUser', users);
+        })
     });
 
 }
@@ -59,14 +66,14 @@ const joinPrivateRoom = (socket, namespace) => ({ username, room, to }) => {
 
             // If he is already talking
             if (userToTalk.privateChat) {
-                
+
                 namespace.to(to).emit('leavePrivateRoom', {
                     to,
                     privateMessage: `${to} is already talking`,
                     from: username,
                     room
                 })
-            
+
                 socket.leave(to, () => {
                     console.log(`user ${username} force to left the room ${to}`);
                 })

@@ -1,4 +1,3 @@
-const config = require('./../config')
 const events = require('./events.js')
 
 // Socket namespace
