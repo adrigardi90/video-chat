@@ -20,7 +20,7 @@ function ChatRedis() {
  */
 ChatRedis.prototype.addUser = function (room, socketId, userObject) {
     this.client.hsetAsync(room, socketId, JSON.stringify(userObject)).then(
-        () => console.debug('addUser', userObject + 'added to the room ' + room),
+        () => console.debug('addUser', userObject.username + 'added to the room ' + room),
         err => console.log('addUser', err)
     );
 }
@@ -39,9 +39,19 @@ ChatRedis.prototype.getUsers = function (room) {
 
         return userList
     }, error => {
-        console.log('getUsers', error)
+        console.log('getUsers ', error)
         return null
     })
+}
+
+ChatRedis.prototype.delUser = function(room, socketId){
+    return this.client.hdelAsync(room, socketId).then(
+        res => (res),
+        err => {
+            console.log('delUser ', err)
+            return null
+        } 
+    )
 }
 
 module.exports = new ChatRedis()

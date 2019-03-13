@@ -44,12 +44,20 @@ const leaveRoom = (socket, namespace) => ({ room, username }) => {
     socket.leave(room, () => {
         console.log(`user ${username} left the room ${room}`);
 
-        let usersRoom = users[room]
-        // delete user from the suitable array
-        usersRoom = usersRoom.filter((user) => (user.username !== username))
 
-        // Notify all the users in the same room
-        namespace.sockets.in(room).emit('newUser', usersRoom);
+        ChatRedis.delUser(room, socket.id).then(data => {
+            if (data === null) return
+
+            ChatRedis.getUsers(room).then(users => {
+                if (users === null) return
+
+                // Notify all the users in the same room
+                namespace.sockets.in(room).emit('newUser', users);
+            })
+
+
+        })
+
     })
 }
 
