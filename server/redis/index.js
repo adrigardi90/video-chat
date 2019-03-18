@@ -44,6 +44,11 @@ ChatRedis.prototype.getUsers = function (room) {
     })
 }
 
+/**
+ * Deleter a user in a room with socketId
+ * @param  {} room
+ * @param  {} socketId
+ */
 ChatRedis.prototype.delUser = function(room, socketId){
     return this.client.hdelAsync(room, socketId).then(
         res => (res),
@@ -51,6 +56,37 @@ ChatRedis.prototype.delUser = function(room, socketId){
             console.log('delUser ', err)
             return null
         } 
+    )
+}
+
+/**
+ * Get user by room and socketId
+ * @param  {} room
+ * @param  {} socketId
+ */
+ChatRedis.prototype.getUser = function(room, socketId){
+    return this.client.hgetAsync(room, socketId).then(
+        res => JSON.parse(res),
+        err => {
+            console.log('getUser ', err)
+            return null
+        }
+    )
+}
+
+/**
+ * Set user
+ * @param  {} room
+ * @param  {} socketId
+ * @param  {} newValue
+ */
+ChatRedis.prototype.setUser = function(room, socketId, newValue){
+    return this.client.hsetAsync(room, socketId, JSON.stringify(newValue)).then(
+        res => res,
+        err => {
+            console.log('setUser', err)
+            return null
+        }
     )
 }
 
