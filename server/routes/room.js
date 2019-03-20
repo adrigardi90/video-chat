@@ -18,7 +18,7 @@ const rooms = [
 
 // route for get rooms
 roomRouter.get('/', (req,res) => {
-    res.json(rooms)
+    res.send(rooms)
 })
 
 module.exports = roomRouter

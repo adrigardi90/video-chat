@@ -6,7 +6,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     room: undefined,
-    username: undefined
+    username: undefined,
+    rooms: []
   },
   mutations: {
     joinRoom(state, { room, username }) {
@@ -15,6 +16,9 @@ export default new Vuex.Store({
     },
     changeRoom(state, room) {
       state.room = room
+    },
+    setRooms(state, rooms) {
+      state.rooms = rooms
     }
   },
   actions: {
@@ -23,6 +27,9 @@ export default new Vuex.Store({
     },
     changeRoom({ commit }, room) {
       commit('changeRoom', room)
+    },
+    setRooms({ commit }, rooms) {
+      commit('setRooms', rooms)
     }
   }
 })
