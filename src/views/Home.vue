@@ -10,6 +10,7 @@
         <md-field>
           <label for="movie">Room</label>
           <md-select v-model="room" name="room" id="room">
+            <!-- <md-option  v-for="room in rooms" :key="room.id" :value="room.name">{{room.name}}</md-option> -->
             <md-option value="general">General</md-option>
             <md-option value="sports">Sports</md-option>
           </md-select>
@@ -29,8 +30,13 @@ export default {
   data: function() {
     return {
       username: undefined,
-      room: undefined
+      room: undefined,
+      rooms: []
     };
+  },
+  created(){
+    //this.$http.
+    console.log('tst', process.env.VUE_APP_PORTA)
   },
   methods: {
     submitForm: function() {
