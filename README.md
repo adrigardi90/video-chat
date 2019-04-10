@@ -1,5 +1,5 @@
 # video-chat
-> Video chat application using [VueJS](https://vuejs.org), [Vuex](https://vuex.vuejs.org), [WebRTC](https://webrtc.org/start/), [SocketIO](https://socket.io), NodeJS % [Redis](https://github.com/NodeRedis/node_redis)
+> Video chat application using [VueJS](https://vuejs.org), [Vuex](https://vuex.vuejs.org), [WebRTC](https://webrtc.org/start/), [SocketIO](https://socket.io), NodeJS and [Redis](https://github.com/NodeRedis/node_redis)
 
 ## Quick start
 First of all, you need to install and run the redis in your PC. Here there is an [article](https://medium.com/@petehouston/install-and-config-redis-on-mac-os-x-via-homebrew-eb8df9a4f298) for Mac OS X. Once Redis is up and running:
