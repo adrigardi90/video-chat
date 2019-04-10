@@ -10,8 +10,7 @@
         <md-field>
           <label for="movie">Room</label>
           <md-select v-model="room" name="room" id="room">
-            <md-option value="general">General</md-option>
-            <md-option value="sports">Sports</md-option>
+            <md-option  v-for="room in rooms" :key="room.id" :value="room.name">{{room.name}}</md-option>
           </md-select>
         </md-field>
         <div class="options__submit">
@@ -23,22 +22,35 @@
 </template>
 
 <script>
+import { url } from "./../utils/config";
+
 export default {
   name: "home",
   components: {},
   data: function() {
     return {
       username: undefined,
-      room: undefined
+      room: undefined,
+      rooms: []
     };
+  },
+  created() {
+    this.$http.get(`http://${url}/rooms`).then(
+      data => {
+        this.rooms = data.body
+        this.$store.dispatch("setRooms", this.rooms);
+      },
+      err => {
+        console.log(err)
+      }
+    );
   },
   methods: {
     submitForm: function() {
-
       // call login API where the user will be stored and execute
       this.$store.dispatch("joinRoom", {
         room: this.room,
-        username: this.username
+        username: this.username,
       });
 
       this.$router.push("/chat");

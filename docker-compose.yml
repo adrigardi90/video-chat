@@ -1,24 +1,53 @@
-version: '2'
+version: '3'
 
 services:
 
+  redis:
+    image: redis:4.0.5-alpine
+    networks:
+      - video-chat
+    ports:
+      - 6379:6379
+    expose:
+      - "6379"
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+
+  # Copy 1
   chat1:
-    build: .
+    build: 
+      context: .
+      args:
+        VUE_APP_SOCKET_HOST: localhost
+        VUE_APP_SOCKET_PORT: 3000 
     ports: 
       - 3000:3000
     networks:
       - video-chat
+    depends_on:
+      - redis
     environment:
       PORT: 3000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
 
+  # Copy 2
   chat2:
-    build: .
+    build: 
+      context: .
+      args:
+        VUE_APP_SOCKET_HOST: localhost
+        VUE_APP_SOCKET_PORT: 3001 
     ports: 
       - 3001:3001
     networks:
       - video-chat
+    depends_on:
+      - redis
     environment:
       PORT: 3001
-
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+  
 networks:
   video-chat:

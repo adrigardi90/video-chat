@@ -17,8 +17,8 @@ const rooms = [
 ]
 
 // route for get rooms
-roomRouter.get('/', () => {
-    console.log('ok')
+roomRouter.get('/', (req,res) => {
+    res.send(rooms)
 })
 
 module.exports = roomRouter

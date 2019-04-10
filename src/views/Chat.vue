@@ -4,8 +4,7 @@
       <md-field>
         <label for="room">Room</label>
         <md-select v-model="room" @md-selected="onChangeRoom" name="room" id="room">
-          <md-option value="general">General</md-option>
-          <md-option value="sports">Sports</md-option>
+            <md-option  v-for="room in this.$store.state.rooms" :key="room.id" :value="room.name">{{room.name}}</md-option>
         </md-select>
       </md-field>
     </div>

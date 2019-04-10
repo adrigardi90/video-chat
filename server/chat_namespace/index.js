@@ -1,5 +1,5 @@
-const config = require('./../config')
 const events = require('./events.js')
+const config = require('./../config')
 
 // Socket namespace
 let namespace;
@@ -7,6 +7,8 @@ let namespace;
 // When connecting
 const onConnection = (socket) => {
 
+    console.log(`Socket connected to port ${config.PORT}`)
+    
     // Listening for joining a room
     socket.on('joinRoom', events.joinRoom(socket, namespace));
 
