@@ -1,0 +1,45 @@
+.md-overlay {
+    position: unset;
+    top: unset;
+    right: unset;
+}
+
+.md-dialog{
+    // top: calc(100vh - 180px);
+    // right: -135px;
+    // height: 350px;
+    // left: unset;
+
+    top: calc(100vh - 180px);
+    height: 350px;
+    position: fixed;
+    right: 6px;
+    transform: translate(0%,-50%);
+    left: unset;
+}
+.md-dialog-container{
+    border: 1px solid gainsboro;
+        flex-flow: row;
+}
+
+.md-dialog-actions {
+    padding: 0;
+}
+.md-dialog-content {
+    padding: 1rem;
+}
+
+.md-button.md-theme-default[disabled] .md-icon-font {
+    color: rgba(0,0,0,0.38) !important;
+    color: var(--md-theme-default-icon-disabled-on-background, rgba(0,0,0,0.38)) !important;
+}
+
+body{
+    min-height: unset;
+    overflow: hidden;
+}
+
+textarea:disabled {
+    cursor: not-allowed;
+    background: #80808021;
+}

@@ -4,13 +4,26 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
+    "run:server": "node ./server/index.js",
+    "debug:server": "node --inspect=0.0.0.0:9229 ./server/index.js",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "http": "0.0.0",
+    "path": "^0.12.7",
+    "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0",
+    "socket.io-redis": "^5.2.0",
     "vue": "^2.5.21",
+    "vue-loading-spinner": "^1.0.11",
     "vue-material": "^1.0.0-beta-10.2",
+    "vue-resource": "^1.5.1",
     "vue-router": "^3.0.1",
+    "vue-socket.io": "^3.0.5",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
