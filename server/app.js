@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 /**
  * Routing
  */
-app.use('/user', users)
+app.use('/auth', users)
 app.use('/rooms', rooms)
 
 

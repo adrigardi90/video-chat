@@ -19,6 +19,10 @@ export default new Vuex.Store({
     },
     setRooms(state, rooms) {
       state.rooms = rooms
+    },
+    leaveChat(state){
+      state.room = undefined,
+      state.username = undefined
     }
   },
   actions: {
@@ -30,6 +34,9 @@ export default new Vuex.Store({
     },
     setRooms({ commit }, rooms) {
       commit('setRooms', rooms)
+    },
+    leaveChat({commit}){
+      commit('leaveChat')
     }
   }
 })

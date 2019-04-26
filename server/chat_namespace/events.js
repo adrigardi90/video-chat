@@ -50,6 +50,28 @@ const leaveRoom = (socket, namespace) => ({ room, username }) => {
     })
 }
 
+const leaveChat = (socket, namespace) => ({ room, username }) => {
+    console.log(`user ${username} wants to leave the chat`);
+
+    ChatRedis.delUser(room, socket.id)
+        .then(data => {
+            if (data === null) return null
+            return ChatRedis.getUsers(room);
+        })
+        .then(users => {
+            if (users === null) return
+
+            // Notify all the users in the same room
+            namespace.sockets.in(room).emit('leaveChat', {users, username});
+
+            // Leave the socket
+            socket.leave(room, () => {
+                console.log(`user ${username} left the room ${room}`);
+            })
+        })
+}
+
+
 const joinPrivateRoom = (socket, namespace) => ({ username, room, to }) => {
     console.log(`user ${username} wants to have a private chat with ${to}`);
 
@@ -148,5 +170,6 @@ module.exports = {
     joinPrivateRoom,
     leavePrivateRoom,
     privateMessage,
-    privateMessagePCSignaling
+    privateMessagePCSignaling,
+    leaveChat
 }
