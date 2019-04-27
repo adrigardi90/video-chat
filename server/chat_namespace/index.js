@@ -33,6 +33,9 @@ const onConnection = (socket) => {
     // Private message for Signaling PeerConnection
     socket.on('privateMessagePCSignaling', events.privateMessagePCSignaling(namespace))
 
+    // Set status
+    socket.on('changeStatus', events.changeStatus(socket, namespace))
+
 }
 
 exports.createNameSpace = (io) => {

@@ -4,7 +4,8 @@ export const STORE_ACTIONS = {
     joinRoom: 'joinRoom',
     setRooms: 'setRooms',
     changeRoom: 'changeRoom',
-    leaveChat:'leaveChat'
+    leaveChat:'leaveChat',
+    changeStatus: 'changeStatus'
 }
 export const WS_EVENTS = {
     joinPrivateRoom: 'joinPrivateRoom',
@@ -12,5 +13,12 @@ export const WS_EVENTS = {
     leaveRoom: 'leaveRoom',
     publicMessage: 'publicMessage',
     leavePrivateRoom: 'leavePrivateRoom',
-    leaveChat: 'leaveChat'
+    leaveChat: 'leaveChat',
+    changeStatus: 'changeStatus'
+}
+
+export const STATUS_OPTIONS = {
+    available: 'available',
+    absent: 'absent',
+    unavailable: 'unavailable'
 }

@@ -1,7 +1,7 @@
 
 const ChatRedis = require('../redis')
 
-const joinRoom = (socket, namespace) => ({ username, room }) => {
+const joinRoom = (socket, namespace) => ({ username, room, status }) => {
     console.log(`user ${username} wants to join the room ${room}`);
 
     // Join the room
@@ -9,7 +9,11 @@ const joinRoom = (socket, namespace) => ({ username, room }) => {
         console.log(`user ${username} joined the room ${room}`);
 
         // add user for the suitable ROOM
-        ChatRedis.addUser(room, socket.id, { username: username, privateChat: false })
+        ChatRedis.addUser(room, socket.id, {
+            username,
+            status,
+            privateChat: false
+        })
 
         ChatRedis.getUsers(room).then(users => {
             if (users === null) return
@@ -19,6 +23,19 @@ const joinRoom = (socket, namespace) => ({ username, room }) => {
         })
     });
 
+}
+
+const changeStatus = (socket, namespace) => ({ username, status, room }) => {
+    console.log(`user ${username} wants to change his status to ${status}`);
+
+    ChatRedis.getUser(room, socket.id)
+        .then(user => ChatRedis.setUser(room, socket.id, { ...user, status }))
+        .then(() => ChatRedis.getUsers(room))
+        .then(users => {
+            if (users === null) return
+            // Notify all the users in the same room
+            namespace.sockets.in(room).emit('newUser', users);
+        })
 }
 
 const publicMessage = (namespace) => ({ room, message, username }) => {
@@ -62,7 +79,7 @@ const leaveChat = (socket, namespace) => ({ room, username }) => {
             if (users === null) return
 
             // Notify all the users in the same room
-            namespace.sockets.in(room).emit('leaveChat', {users, username});
+            namespace.sockets.in(room).emit('leaveChat', { users, username });
 
             // Leave the socket
             socket.leave(room, () => {
@@ -171,5 +188,6 @@ module.exports = {
     leavePrivateRoom,
     privateMessage,
     privateMessagePCSignaling,
-    leaveChat
+    leaveChat,
+    changeStatus
 }
