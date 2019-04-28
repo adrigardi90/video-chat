@@ -3,6 +3,15 @@ body {
     overflow: hidden;
 }
 
+textarea {
+    resize: none;
+    &:disabled {
+        cursor: not-allowed;
+        background: #80808021;
+    }
+}
+
+// Overwrite material styles
 .md-overlay {
     position: unset;
     top: unset;
@@ -25,15 +34,12 @@ body {
     }
     &-content {
         padding: 1rem;
+        background: url('./../assets/msg_bck.png');
+        background-size: 100% 100%;
     }
 }
 
 .md-button.md-theme-default[disabled] .md-icon-font {
     color: rgba(0, 0, 0, 0.38) !important;
     color: var(--md-theme-default-icon-disabled-on-background, rgba(0, 0, 0, 0.38)) !important;
-}
-
-textarea:disabled {
-    cursor: not-allowed;
-    background: #80808021;
 }

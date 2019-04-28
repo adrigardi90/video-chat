@@ -120,6 +120,9 @@ export default {
       this.videoCall = true;
     },
     sendPrivateMessage() {
+      // Do not send empty messages
+      if(this.privateMessage.replace(/\s/g, "").length === 0) return
+
       console.log(`${this.$store.state.username} want to send a private message to ${this.showDialog.user}`);
       this.$socket.emit("privateMessage", {
         privateMessage: this.privateMessage,

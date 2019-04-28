@@ -12,7 +12,7 @@
       <div v-for="user in users" :key="user.username">
         <md-list-item>
           <md-icon v-bind:class="user.status">fiber_manual_record</md-icon>
-          <span class="md-list-item-text">{{user.username}}</span>
+          <span class="md-list-item-text user-list__username">{{user.username}}</span>
           <md-button
             class="md-icon-button md-list-action"
             v-if="$store.state.username !== user.username"
@@ -83,6 +83,12 @@ export default {
     float: right;
     margin-right: -8px;
   }
+  &__username{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: block;
+  }
   .available {
     color: $available_status !important;
   }
@@ -110,6 +116,10 @@ export default {
   position: sticky;
   top: 0px;
   z-index: 9;
+}
+
+.md-button.md-theme-default{
+  margin: 0 -10px 0 5px;
 }
 </style>
 

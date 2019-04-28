@@ -19,7 +19,7 @@ const joinRoom = (socket, namespace) => ({ username, room, status }) => {
             if (users === null) return
 
             // Notify all the users in the same room
-            namespace.sockets.in(room).emit('newUser', users);
+            namespace.sockets.in(room).emit('newUser', { users, username });
         })
     });
 
@@ -34,7 +34,7 @@ const changeStatus = (socket, namespace) => ({ username, status, room }) => {
         .then(users => {
             if (users === null) return
             // Notify all the users in the same room
-            namespace.sockets.in(room).emit('newUser', users);
+            namespace.sockets.in(room).emit('newUser', { users, username });
         })
 }
 
@@ -61,7 +61,7 @@ const leaveRoom = (socket, namespace) => ({ room, username }) => {
                 if (users === null) return
 
                 // Notify all the users in the same room
-                namespace.sockets.in(room).emit('newUser', users);
+                namespace.sockets.in(room).emit('newUser', { users, username });
             })
 
     })

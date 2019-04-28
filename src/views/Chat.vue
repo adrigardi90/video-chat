@@ -56,9 +56,18 @@ export default {
     ChatDialog
   },
   sockets: {
-    newUser: function(data) {
+    newUser: function({users, username}) {
+      const isMe = this.$store.state.username === username;
+      if(!isMe){
+        if(users.length > this.users.length){
+          this.messages.push({join: true, msg:`${username} has joined the room`});
+        } else if(users.length < this.users.length){
+          this.messages.push({join: true, msg:`${username} has left the room`});
+        }
+      }
+      
       this.users.length = 0;
-      this.users = data;
+      this.users = users;
     },
 
     newMessage: function({ message, username }) {
@@ -121,6 +130,7 @@ export default {
     },
 
     leaveChat: function({ users, username }) {
+      this.messages.push({join: true, msg:`${username} has left the room`});
       this.users.length = 0;
       this.users = users;
 

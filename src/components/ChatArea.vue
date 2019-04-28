@@ -2,10 +2,15 @@
   <div class="message">
     <div v-for="msg in messages" :key="msg.msg" class="message__container">
       <p
+        v-if="!msg.join"
         class="message__text"
         :class="{ own: msg.isMe, other: !msg.isMe}"
         v-message="msg.msg"
       ></p>
+      <p 
+        v-if="msg.join"
+        class="message__joined"> 
+        {{msg.msg}}</p>
     </div>
   </div>
 </template>
@@ -37,6 +42,12 @@ export default {
     width: max-content;
     padding: 0px 7px;
     border-radius: 10px;
+  }
+
+  &__joined{
+    font-size: 0.9rem;
+    font-style: oblique;
+    margin: 0 auto;
   }
 
   &__container {
