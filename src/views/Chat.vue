@@ -15,10 +15,10 @@
 
     <md-app md-waterfall md-mode="fixed">
       <md-app-toolbar class="md-primary">
-          <span class="md-title page-container__room">{{room}}</span>
-          <md-button class="md-icon-button page-container-logout" @click.native="logout()">
-            <md-icon>power_settings_new</md-icon>
-          </md-button>
+        <span class="md-title page-container__room">{{room}}</span>
+        <md-button class="md-icon-button page-container-logout" @click.native="logout()">
+          <md-icon>power_settings_new</md-icon>
+        </md-button>
       </md-app-toolbar>
 
       <md-app-drawer md-permanent="full">
@@ -62,8 +62,11 @@ export default {
     },
 
     newMessage: function({ message, username }) {
+      // Do not send empty messages
+      if(message.replace(/\s/g, "").length === 0) return
+
       const isMe = this.$store.state.username === username;
-      const msg = isMe ? ` ${message}` : `${username.toUpperCase()} - ${message} `;
+      const msg = isMe ? ` ${message}` : {username, message};
       const msgObj = { msg, isMe };
       this.messages.push(msgObj);
     },
@@ -107,20 +110,24 @@ export default {
     },
 
     leavePrivateRoom: function({ privateMessage, to, from }) {
-      if ((from === this.openPrivateChat.user || from === this.$store.state.username) && this.openPrivateChat.chat) {
+      if (
+        (from === this.openPrivateChat.user ||
+          from === this.$store.state.username) &&
+        this.openPrivateChat.chat
+      ) {
         this.openPrivateChat.msg.push({ msg: privateMessage });
         this.openPrivateChat = { ...this.openPrivateChat, closed: true };
       }
     },
 
-    leaveChat: function({users, username}) {
+    leaveChat: function({ users, username }) {
       this.users.length = 0;
       this.users = users;
-       
-      if(username === this.$store.state.username){
-        this.$store.dispatch(STORE_ACTIONS.leaveChat).then( () => {
+
+      if (username === this.$store.state.username) {
+        this.$store.dispatch(STORE_ACTIONS.leaveChat).then(() => {
           this.$router.push("/");
-        })
+        });
       }
     }
   },
@@ -181,11 +188,11 @@ export default {
         room: null
       };
     },
-    async logout(){
+    async logout() {
       try {
         let response = await this.$http.post(`http://${url}/auth/logout`, {
           username: this.$store.state.username
-        })
+        });
         if (response.body.code === 200) {
           this.$socket.emit(WS_EVENTS.leaveChat, {
             room: this.$store.state.room,
@@ -193,7 +200,7 @@ export default {
           });
         }
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     }
   }
@@ -202,73 +209,92 @@ export default {
 
 
 
-<style lang="scss" scoped>
-
-@import './../styles/variables';
+<style lang="scss">
+@import "./../styles/variables";
 
 .page-container {
   height: 100%;
-  background: url('./../assets/bck.jpg');
+  background: url("./../assets/bck.jpg");
   .md-field {
     width: 200px;
     margin: 0 auto;
     margin-bottom: 3rem;
 
     & label {
-      color: white
+      color: white;
+    }
+
+    & .md-icon-image svg{
+      fill: white;
     }
 
     & .md-menu.md-select {
       border-bottom: 1px solid white;
     }
 
-    &.md-theme-default.md-has-value .md-input{
+    &.md-theme-default.md-has-value .md-input {
       -webkit-text-fill-color: white !important;
     }
-    .md-menu.md-select .md-input{
+    .md-menu.md-select .md-input {
       -webkit-text-fill-color: white !important;
     }
   }
 
-  .md-toolbar.md-theme-default{
-
-    &.md-transparent{
-          background: $secondary_blue;
-    color: white;
-    /* position: fixed; */
-    font-size: 17px;
+  .md-toolbar.md-theme-default {
+    &.md-transparent {
+      background: $secondary_blue;
+      color: white;
+      /* position: fixed; */
+      font-size: 17px;
     }
-    
-    &.md-primary{
+
+    &.md-primary {
       background-color: $main_blue;
-      
-      & .md-title{
+
+      & .md-title {
         font-weight: bold;
       }
 
-      & .md-icon{
-        font-weight: bold
-      } 
+      & .md-icon {
+        font-weight: bold;
+      }
     }
   }
 
-  .md-layout-item{
+  .md-layout-item {
     padding-top: 2rem;
   }
 
   .md-app {
-    //border: solid 1px rgba(0, 0, 0, 0.12);
     width: 85%;
     margin: 0 auto;
     height: 70vh;
     max-width: 1300px;
 
-    & .md-content.md-theme-default{
-      background: url('./../assets/msg_bck.png')
+    & .md-content.md-theme-default {
+      background: url("./../assets/msg_bck.png");
+      background-attachment: fixed;
+      background-size: 100% 100%;
+      border-left: 0;
+    }
+
+    & .md-layout-column.md-flex.md-theme-default.md-scrollbar{
+        background: url("./../assets/msg_bck.png");
+        background-attachment: fixed;
+        background-size: 100% 100%;
+    }
+
+    &.md-fixed .md-app-scroller{
+      background: url("./../assets/msg_bck.png");
+      background-attachment: fixed;
+      background-size: 100% 100%;
+      border-left: 1px solid rgba(0,0,0,0.12);
     }
   }
 
-  .md-app-toolbar{
+  
+
+  .md-app-toolbar {
     display: block;
   }
 
@@ -276,11 +302,11 @@ export default {
     width: 270px;
   }
 
-  &__room{
+  &__room {
     float: left;
     padding-top: 19px;
   }
-  &-logout{
+  &-logout {
     float: right;
     margin-top: 12px;
   }

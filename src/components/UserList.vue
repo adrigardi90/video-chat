@@ -8,19 +8,21 @@
         </span>
       </div>
     </md-toolbar>
-    <div v-for="user in users" :key="user.username">
-      <md-list-item>
-        <md-icon v-bind:class="user.status">fiber_manual_record</md-icon>
-        <span class="md-list-item-text">{{user.username}}</span>
-        <md-button
-          class="md-icon-button md-list-action"
-          v-if="$store.state.username !== user.username"
-          @click="openChat(user.username)"
-          :disabled="openPrivateChat === true"
-        >
-          <md-icon class="md-primary">chat_bubble</md-icon>
-        </md-button>
-      </md-list-item>
+    <div>
+      <div v-for="user in users" :key="user.username">
+        <md-list-item>
+          <md-icon v-bind:class="user.status">fiber_manual_record</md-icon>
+          <span class="md-list-item-text">{{user.username}}</span>
+          <md-button
+            class="md-icon-button md-list-action"
+            v-if="$store.state.username !== user.username"
+            @click="openChat(user.username)"
+            :disabled="openPrivateChat === true"
+          >
+            <md-icon class="md-primary">chat_bubble</md-icon>
+          </md-button>
+        </md-list-item>
+      </div>
     </div>
   </md-list>
 </template>
@@ -92,7 +94,6 @@ export default {
   }
 }
 .md-icon.md-theme-default.md-icon-font {
-  //color: green;
   font-size: 15px !important;
   margin-right: 15px;
   cursor: pointer;
@@ -103,9 +104,12 @@ export default {
   }
 }
 .md-toolbar.md-theme-default.md-transparent {
-  background: #3961a5ed;
+  background: #486ca9;
   color: white;
   font-size: 17px;
+  position: sticky;
+  top: 0px;
+  z-index: 9;
 }
 </style>
 

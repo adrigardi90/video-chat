@@ -21,7 +21,8 @@ export default {
   },
   methods: {
     sendMessage() {
-      this.$emit("send-message", this.message);
+      const msg = this.message.replace(/\n/g,'')
+      this.$emit("send-message", msg);
       this.message = "";
     }
   }
