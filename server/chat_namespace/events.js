@@ -8,19 +8,29 @@ const joinRoom = (socket, namespace) => ({ username, room, status }) => {
     socket.join(room, () => {
         console.log(`user ${username} joined the room ${room}`);
 
-        // add user for the suitable ROOM
-        ChatRedis.addUser(room, socket.id, {
-            username,
-            status,
-            privateChat: false
-        })
+        // Procedure until storing the user by username and not socket.id
+        ChatRedis.getUsers(room)
+            .then(users => {
+                const isLogged = users.some(user => user.username === username)
+                if (!isLogged) return ChatRedis.addUser(room, socket.id, { username, status, privateChat: false })
+                else return users
+            })
+            .then(() => {
+                ChatRedis.getUsers(room).then(users => {
+                    if (users === null) return
 
-        ChatRedis.getUsers(room).then(users => {
-            if (users === null) return
+                    // Notify all the users in the same room
+                    namespace.sockets.in(room).emit('newUser', { users, username });
+                })
+            })
+        // // add user for the suitable ROOM
+        // ChatRedis.addUser(room, socket.id, {
+        //     username,
+        //     status,
+        //     privateChat: false
+        // })
 
-            // Notify all the users in the same room
-            namespace.sockets.in(room).emit('newUser', { users, username });
-        })
+
     });
 
 }
@@ -84,6 +94,7 @@ const leaveChat = (socket, namespace) => ({ room, username }) => {
             // Leave the socket
             socket.leave(room, () => {
                 console.log(`user ${username} left the room ${room}`);
+                socket.disconnect(true);
             })
         })
 }

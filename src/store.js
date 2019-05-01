@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+//import createPersistedState from 'vuex-persistedstate'
+
 import { STATUS_OPTIONS } from './utils/config'
 
 Vue.use(Vuex)
@@ -51,5 +53,6 @@ export default new Vuex.Store({
     changeStatus({ commit }) {
       commit('changeStatus')
     }
-  }
+  },
+  //plugins: [createPersistedState()]
 })

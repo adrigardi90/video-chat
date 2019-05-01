@@ -6,6 +6,7 @@ let namespace;
 
 // When connecting
 const onConnection = (socket) => {
+    console.log(' %s sockets connected', namespace.engine.clientsCount);
 
     console.log(`Socket connected to port ${config.PORT}`)
 

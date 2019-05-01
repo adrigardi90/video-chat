@@ -10,6 +10,8 @@ import { url } from './utils/config'
 // Socket config
 Vue.use(new VueSocketIO({
   debug: true,
+  autoConnect: true,
+  reconnection: true,
   connection: url,
   vuex: {
     store,
