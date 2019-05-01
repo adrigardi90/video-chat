@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+
+  redis:
+    image: redis:4.0.5-alpine
+    networks:
+      - video-chat
+    ports:
+      - 6379:6379
+    expose:
+      - "6379"
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+
+  chat-service:
+    build: 
+      context: .
+      dockerfile: ./aws/Dockerfile
+    ports: 
+      - 4000:4000
+    networks:
+      - video-chat
+    depends_on:
+      - redis
+    environment:
+      PORT: 4000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+networks:
+  video-chat:
