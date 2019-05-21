@@ -18,6 +18,9 @@ const onConnection = (socket) => {
     // Leave room
     socket.on('leaveRoom', events.leaveRoom(socket, namespace))
 
+    // Leave room
+    socket.on('leaveChat', events.leaveChat(socket, namespace))
+
     // Listening for private chats
     socket.on('joinPrivateRoom', events.joinPrivateRoom(socket, namespace));
 
@@ -29,6 +32,9 @@ const onConnection = (socket) => {
 
     // Private message for Signaling PeerConnection
     socket.on('privateMessagePCSignaling', events.privateMessagePCSignaling(namespace))
+
+    // Set status
+    socket.on('changeStatus', events.changeStatus(socket, namespace))
 
 }
 

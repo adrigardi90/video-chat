@@ -1,7 +1,7 @@
 
 const ChatRedis = require('../redis')
 
-const joinRoom = (socket, namespace) => ({ username, room }) => {
+const joinRoom = (socket, namespace) => ({ username, room, status }) => {
     console.log(`user ${username} wants to join the room ${room}`);
 
     // Join the room
@@ -9,16 +9,33 @@ const joinRoom = (socket, namespace) => ({ username, room }) => {
         console.log(`user ${username} joined the room ${room}`);
 
         // add user for the suitable ROOM
-        ChatRedis.addUser(room, socket.id, { username: username, privateChat: false })
+        ChatRedis.addUser(room, socket.id, {
+            username,
+            status,
+            privateChat: false
+        })
 
         ChatRedis.getUsers(room).then(users => {
             if (users === null) return
 
             // Notify all the users in the same room
-            namespace.sockets.in(room).emit('newUser', users);
+            namespace.sockets.in(room).emit('newUser', { users, username });
         })
     });
 
+}
+
+const changeStatus = (socket, namespace) => ({ username, status, room }) => {
+    console.log(`user ${username} wants to change his status to ${status}`);
+
+    ChatRedis.getUser(room, socket.id)
+        .then(user => ChatRedis.setUser(room, socket.id, { ...user, status }))
+        .then(() => ChatRedis.getUsers(room))
+        .then(users => {
+            if (users === null) return
+            // Notify all the users in the same room
+            namespace.sockets.in(room).emit('newUser', { users, username });
+        })
 }
 
 const publicMessage = (namespace) => ({ room, message, username }) => {
@@ -44,11 +61,33 @@ const leaveRoom = (socket, namespace) => ({ room, username }) => {
                 if (users === null) return
 
                 // Notify all the users in the same room
-                namespace.sockets.in(room).emit('newUser', users);
+                namespace.sockets.in(room).emit('newUser', { users, username });
             })
 
     })
 }
+
+const leaveChat = (socket, namespace) => ({ room, username }) => {
+    console.log(`user ${username} wants to leave the chat`);
+
+    ChatRedis.delUser(room, socket.id)
+        .then(data => {
+            if (data === null) return null
+            return ChatRedis.getUsers(room);
+        })
+        .then(users => {
+            if (users === null) return
+
+            // Notify all the users in the same room
+            namespace.sockets.in(room).emit('leaveChat', { users, username });
+
+            // Leave the socket
+            socket.leave(room, () => {
+                console.log(`user ${username} left the room ${room}`);
+            })
+        })
+}
+
 
 const joinPrivateRoom = (socket, namespace) => ({ username, room, to }) => {
     console.log(`user ${username} wants to have a private chat with ${to}`);
@@ -148,5 +187,7 @@ module.exports = {
     joinPrivateRoom,
     leavePrivateRoom,
     privateMessage,
-    privateMessagePCSignaling
+    privateMessagePCSignaling,
+    leaveChat,
+    changeStatus
 }

@@ -1,7 +1,16 @@
 <template>
   <div class="message">
     <div v-for="msg in messages" :key="msg.msg" class="message__container">
-      <p class="message__text" :class="{ own: msg.isMe, other: !msg.isMe}">{{msg.msg}}</p>
+      <p
+        v-if="!msg.join"
+        class="message__text"
+        :class="{ own: msg.isMe, other: !msg.isMe}"
+        v-message="msg.msg"
+      ></p>
+      <p 
+        v-if="msg.join"
+        class="message__joined"> 
+        {{msg.msg}}</p>
     </div>
   </div>
 </template>
@@ -13,6 +22,16 @@ export default {
   props: {
     messages: Array
   },
+  directives: {
+    message: {
+      bind: function(el, binding) {
+        const isObj = typeof binding.value === 'object'
+        isObj ? 
+          el.innerHTML = `<span style="font-weight:bold">${binding.value.username}</span>: ${binding.value.message}`:
+          el.innerHTML = `<span>${binding.value}</span>`
+      }
+    }
+  },
   created() {}
 };
 </script>
@@ -21,6 +40,14 @@ export default {
 .message {
   &__text {
     width: max-content;
+    padding: 0px 7px;
+    border-radius: 10px;
+  }
+
+  &__joined{
+    font-size: 0.9rem;
+    font-style: oblique;
+    margin: 0 auto;
   }
 
   &__container {

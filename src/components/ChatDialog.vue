@@ -41,7 +41,7 @@
             class="chat-dialog__text"
             v-model="privateMessage"
             :disabled="showDialog.closed"
-            @keyup.enter="sendPrivateMessage()">
+            @keyup.enter="sendPrivateMessage(privateMessage)">
           </textarea>
         </md-dialog-actions>
       </div>
@@ -119,10 +119,13 @@ export default {
       };
       this.videoCall = true;
     },
-    sendPrivateMessage() {
+    sendPrivateMessage(msg) {
+      // Do not send empty messages
+      if(typeof msg !== "object" && this.privateMessage.replace(/\s/g, "").length === 0) return
+
       console.log(`${this.$store.state.username} want to send a private message to ${this.showDialog.user}`);
       this.$socket.emit("privateMessage", {
-        privateMessage: this.privateMessage,
+        privateMessage: msg,
         to: this.showDialog.user,
         from: this.$store.state.username,
         room: this.showDialog.room
@@ -144,8 +147,7 @@ export default {
         candidate: undefined,
         close: false
       };
-      this.privateMessage = { msg:`${this.$store.state.username} has closed the video`}
-      this.sendPrivateMessage()
+      this.sendPrivateMessage({msg:`${this.$store.state.username} has closed the video`})
     },
   },
   watch: {

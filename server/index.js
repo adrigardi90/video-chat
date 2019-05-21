@@ -9,6 +9,10 @@ const server = http.createServer(app);
 
 // Atach server to the socket
 app.io.attach(server)
+app.io.origins([config.ORIGINS])
+
+// Using the adapter to pass event between nodes
+app.io.adapter(redis({ host: config.REDIS_HOST, port: config.REDIS_PORT }));
 
 // Using the adapter to pass event between nodes
 app.io.adapter(redis({ host: config.REDIS_HOST, port: config.REDIS_PORT }));

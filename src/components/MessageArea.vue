@@ -21,7 +21,8 @@ export default {
   },
   methods: {
     sendMessage() {
-      this.$emit("send-message", this.message);
+      const msg = this.message.replace(/\n/g,'')
+      this.$emit("send-message", msg);
       this.message = "";
     }
   }
@@ -34,17 +35,21 @@ export default {
   width: 85%;
   margin: 0 auto;
   display: flex;
-  //max-width: 85%;
   max-width: 1300px;
-  margin-top: 1rem;
+  margin-top: 5px;
 
   &__input {
     width: 100%;
     & textarea {
       width: 100%;
-      height: 59px;
+      height: 45px;
       border-color: rgba(0, 0, 0, 0.12);
     }
+  } 
+
+  & .md-button.md-theme-default.md-primary {
+    background: #3961a5;
+    color: white;
   }
 }
 </style>
