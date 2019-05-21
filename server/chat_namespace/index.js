@@ -8,7 +8,7 @@ let namespace;
 const onConnection = (socket) => {
 
     console.log(`Socket connected to port ${config.PORT}`)
-
+    
     // Listening for joining a room
     socket.on('joinRoom', events.joinRoom(socket, namespace));
 
