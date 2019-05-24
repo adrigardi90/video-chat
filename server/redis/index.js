@@ -20,7 +20,7 @@ function ChatRedis() {
  */
 ChatRedis.prototype.addUser = function (room, socketId, userObject) {
     this.client.hsetAsync(room, socketId, JSON.stringify(userObject)).then(
-        () => console.debug('addUser', userObject.username + 'added to the room ' + room),
+        () => console.debug('addUser ', userObject.username + ' added to the room ' + room),
         err => console.log('addUser', err)
     );
 }

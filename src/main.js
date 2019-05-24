@@ -10,12 +10,12 @@ import { url } from './utils/config'
 // Socket config
 Vue.use(new VueSocketIO({
   debug: true,
-  connection: url,
+  connection: `${url}/video-chat`,
   vuex: {
     store,
     actionPrefix: 'SOCKET_',
     mutationPrefix: 'SOCKET_'
-  }
+  },
 }))
 // Vue resource for http
 Vue.use(VueResource)
