@@ -19,7 +19,7 @@ const joinRoom = (socket, namespace) => ({ username, room, status }) => {
             if (users === null) return
 
             // Notify all the users in the same room
-            namespace.sockets.in(room).emit('newUser', { users, username });
+            namespace.in(room).emit('newUser', { users, username });
         })
     });
 
@@ -34,12 +34,12 @@ const changeStatus = (socket, namespace) => ({ username, status, room }) => {
         .then(users => {
             if (users === null) return
             // Notify all the users in the same room
-            namespace.sockets.in(room).emit('newUser', { users, username });
+            namespace.in(room).emit('newUser', { users, username });
         })
 }
 
 const publicMessage = (namespace) => ({ room, message, username }) => {
-    namespace.sockets.in(room).emit('newMessage', {
+    namespace.in(room).emit('newMessage', {
         message,
         username
     });
@@ -51,7 +51,6 @@ const leaveRoom = (socket, namespace) => ({ room, username }) => {
     socket.leave(room, () => {
         console.log(`user ${username} left the room ${room}`);
 
-
         ChatRedis.delUser(room, socket.id)
             .then(data => {
                 if (data === null) return null
@@ -61,7 +60,7 @@ const leaveRoom = (socket, namespace) => ({ room, username }) => {
                 if (users === null) return
 
                 // Notify all the users in the same room
-                namespace.sockets.in(room).emit('newUser', { users, username });
+                namespace.in(room).emit('newUser', { users, username });
             })
 
     })
@@ -79,7 +78,7 @@ const leaveChat = (socket, namespace) => ({ room, username }) => {
             if (users === null) return
 
             // Notify all the users in the same room
-            namespace.sockets.in(room).emit('leaveChat', { users, username });
+            namespace.in(room).emit('leaveChat', { users, username });
 
             // Leave the socket
             socket.leave(room, () => {
@@ -128,7 +127,7 @@ const joinPrivateRoom = (socket, namespace) => ({ username, room, to }) => {
                     if (res === null) return
 
                     // Notify the user to talk with (in the same main room)
-                    namespace.sockets.in(room).emit('privateChat', {
+                    namespace.in(room).emit('privateChat', {
                         username,
                         to
                     });

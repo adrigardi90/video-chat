@@ -8,7 +8,7 @@ let namespace;
 const onConnection = (socket) => {
 
     console.log(`Socket connected to port ${config.PORT}`)
-    
+
     // Listening for joining a room
     socket.on('joinRoom', events.joinRoom(socket, namespace));
 
@@ -40,7 +40,6 @@ const onConnection = (socket) => {
 
 exports.createNameSpace = (io) => {
     namespace = io
-    namespace
-        // .of(config.CHAT_NAMESPACE)
+        .of(config.CHAT_NAMESPACE)
         .on('connection', onConnection)
 }
