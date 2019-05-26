@@ -44,6 +44,9 @@ export default {
       width: 100%;
       height: 45px;
       border-color: rgba(0, 0, 0, 0.12);
+      font-size: 16px;
+      padding: 1px 5px;
+      font-family: monospace;
     }
   } 
 
