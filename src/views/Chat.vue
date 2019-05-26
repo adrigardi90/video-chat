@@ -118,7 +118,7 @@ export default {
       this.openPrivateChat.msg.push(msgObj);
     },
 
-    leavePrivateRoom: function({ privateMessage, to, from }) {
+    leavePrivateRoom: function({ privateMessage, from }) {
       if (
         (from === this.openPrivateChat.user ||
           from === this.$store.state.username) &&
