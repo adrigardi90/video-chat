@@ -17,8 +17,7 @@
             class="md-icon-button md-list-action"
             v-if="$store.state.username !== user.username"
             @click="openChat(user.username)"
-            :disabled="openPrivateChat === true"
-          >
+            :disabled="openPrivateChat === true">
             <md-icon class="md-primary">chat_bubble</md-icon>
           </md-button>
         </md-list-item>

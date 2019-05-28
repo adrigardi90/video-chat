@@ -196,6 +196,7 @@ export default {
       try {
         log(`${this.username} added a candidate`);
         await this.pc.addIceCandidate(candidate);
+        log(`Candidate added`);
       } catch (error) {
         log(`Error adding a candidate in ${this.username}. Error: ${error}`)
       }

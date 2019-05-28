@@ -33,7 +33,11 @@
         </div>
         <md-dialog-content>
           <p class="chat-dialog__title">Private chat with {{showDialog.user}}</p>
-          <ChatArea v-bind:messages="showDialog.msg"></ChatArea>
+          <ChatArea 
+            :messages="showDialog.msg"
+            :maxMessageLength="30"
+            :chatContainer="'md-dialog-content'">
+          </ChatArea>
         </md-dialog-content>
 
         <md-dialog-actions>
