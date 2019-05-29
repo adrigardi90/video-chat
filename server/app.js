@@ -27,10 +27,8 @@ app.use((req, res, next) => {
 app.use('/auth', users)
 app.use('/rooms', rooms)
 
-
 // Static routing
 app.use(express.static(path.join(__dirname, '../dist')));
-
 
 /**
  * Chat socket namespace

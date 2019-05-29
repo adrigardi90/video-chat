@@ -5,19 +5,31 @@
       <form novalidate class="md-layout" @submit.prevent="submitForm">
         <md-field>
           <label>Username</label>
-          <md-input v-model="username" type="string" id="username"></md-input>
+          <md-input 
+            v-model="username" 
+            type="string" 
+            id="username">
+          </md-input>
         </md-field>
         <md-field>
           <label for="movie">Room</label>
           <md-select v-model="room" name="room" id="room">
-            <md-option v-for="room in rooms" :key="room.id" :value="room.name">{{room.name}}</md-option>
+            <md-option 
+              v-for="room in rooms"   
+              :key="room.id" 
+              :value="room.name">{{room.name}}
+            </md-option>
           </md-select>
         </md-field>
         <div v-if="error" class="options-error">
           <p>{{error}}</p>
         </div>
         <div class="options__submit">
-          <md-button type="submit" class="md-raised md-primary" :disabled="!(username && room)">JOIN</md-button>
+          <md-button 
+            type="submit" 
+            class="md-raised md-primary" 
+            :disabled="!(username && room)">JOIN
+          </md-button>
         </div>
       </form>
     </div>
@@ -29,7 +41,6 @@ import { url, STORE_ACTIONS } from "./../utils/config";
 
 export default {
   name: "home",
-  components: {},
   data: function() {
     return {
       username: undefined,
@@ -50,8 +61,8 @@ export default {
   methods: {
     async submitForm() {
       if(!(this.username && this.room)) return;
-
       this.error = undefined
+      
       const data = {
         room: this.room,
         username: this.username
@@ -69,11 +80,6 @@ export default {
       } catch (error) {
         console.log(error);
       }
-    }
-  },
-  computed: {
-    isEmpty: function() {
-      return !(this.username && this.room);
     }
   }
 };

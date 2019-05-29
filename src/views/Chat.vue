@@ -1,5 +1,6 @@
 <template>
   <div class="page-container">
+    
     <div class="md-layout-item">
       <md-field>
         <label for="room">Room</label>
@@ -38,7 +39,9 @@
       </md-app-content>
     </md-app>
 
-    <MessageArea @send-message="sendMessage($event)"></MessageArea>
+    <MessageArea 
+      @send-message="sendMessage($event)">
+    </MessageArea>
 
     <ChatDialog 
       :showDialog="openPrivateChat" 

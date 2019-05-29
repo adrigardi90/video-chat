@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import VueSocketIO from 'vue-socket.io'
-import VueResource from 'vue-resource';
+import VueResource from 'vue-resource'
 import './styles/app.scss'
 import { url } from './utils/config'
 
@@ -17,6 +17,7 @@ Vue.use(new VueSocketIO({
     mutationPrefix: 'SOCKET_'
   },
 }))
+
 // Vue resource for http
 Vue.use(VueResource)
 
