@@ -55,17 +55,13 @@ export default {
   }),
   async created() {
     this.username = this.$store.state.username;
+    await this.getUserMedia();
+    this.addLocalStream();
+    await this.getAudioVideo();
 
-    // Calling
-    if (!this.videoAnswer.video) {
-      await this.getUserMedia();
-      this.callFriend();
-
-      // Getting the call
-    } else {
-      await this.getUserMedia();
-      this.handleAnser();
-    }
+    !this.videoAnswer.video ? 
+      this.callFriend() : // Caller
+      this.handleAnser() // Callee
   },
   mounted() {
     this.myVideo = document.getElementById("localVideo");
@@ -73,11 +69,8 @@ export default {
   },
   methods: {
     async callFriend() {
-      log(`${this.username} wants to start a call`);
-      await this.getAudioVideo();
-      this.createPeerConnection();
-      this.addLocalStream();
-
+      log(`${this.username} wants to start a call`);   
+      this.createPeerConnection();    
       // Event listeners
       this.onIceCandidates();
       this.onAddStream();
@@ -86,9 +79,7 @@ export default {
     },
     async handleAnser() {
       log(`${this.username} gets an offer from ${this.videoAnswer.from}`);
-      await this.getAudioVideo();
       this.createPeerConnection();
-      this.addLocalStream();
 
       // Event listeners
       this.onIceCandidates();
@@ -196,6 +187,7 @@ export default {
       try {
         log(`${this.username} added a candidate`);
         await this.pc.addIceCandidate(candidate);
+        log(`Candidate added`);
       } catch (error) {
         log(`Error adding a candidate in ${this.username}. Error: ${error}`)
       }

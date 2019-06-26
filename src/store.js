@@ -23,8 +23,8 @@ export default new Vuex.Store({
       state.rooms = rooms
     },
     leaveChat(state) {
-      state.room = undefined,
-        state.username = undefined
+      state.room = undefined
+      state.username = undefined
     },
     changeStatus(state) {
       let nextStatus 

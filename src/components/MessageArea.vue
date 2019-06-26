@@ -1,7 +1,13 @@
 <template>
   <div class="text-area">
     <div class="text-area__input">
-      <textarea name id cols="30" rows="10" v-model="message" @keyup.enter="sendMessage()"></textarea>
+      <textarea 
+        name id 
+        cols="30" 
+        rows="10" 
+        v-model="message" 
+        @keyup.enter="sendMessage()">
+      </textarea>
     </div>
     <div>
       <md-button class="md-primary" @click="sendMessage()">Send</md-button>

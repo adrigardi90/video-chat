@@ -1,5 +1,6 @@
 <template>
   <div class="page-container">
+    
     <div class="md-layout-item">
       <md-field>
         <label for="room">Room</label>
@@ -29,14 +30,23 @@
         ></UserList>
       </md-app-drawer>
 
-      <md-app-content>
-        <ChatArea :messages="messages"></ChatArea>
+      <md-app-content id="chat-content">
+        <ChatArea 
+          :messages="messages"
+          :maxMessageLength="120"
+          :chatContainer="'md-app-scroller'">
+        </ChatArea>
       </md-app-content>
     </md-app>
 
-    <MessageArea @send-message="sendMessage($event)"></MessageArea>
+    <MessageArea 
+      @send-message="sendMessage($event)">
+    </MessageArea>
 
-    <ChatDialog :showDialog="openPrivateChat" @close-chat="closePrivateChat()"></ChatDialog>
+    <ChatDialog 
+      :showDialog="openPrivateChat" 
+      @close-chat="closePrivateChat()">
+    </ChatDialog>
   </div>
 </template>
 

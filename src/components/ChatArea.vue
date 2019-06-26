@@ -20,19 +20,45 @@
 export default {
   name: "ChatArea",
   props: {
-    messages: Array
+    messages: Array,
+    maxMessageLength: Number,
+    chatContainer: String
   },
   directives: {
     message: {
-      bind: function(el, binding) {
+      bind: function(el, binding, vnode) {
         const isObj = typeof binding.value === 'object'
-        isObj ? 
-          el.innerHTML = `<span style="font-weight:bold">${binding.value.username}</span>: ${binding.value.message}`:
-          el.innerHTML = `<span>${binding.value}</span>`
+        let chunks
+        const maxLength = vnode.context.maxMessageLength
+
+        if(isObj) {
+          chunks = Math.ceil(binding.value.message.length / maxLength)
+          el.innerHTML = `<span style="font-weight:bold">${binding.value.username}</span>: 
+            ${vnode.context.getChunkText(binding.value.message, maxLength, chunks)}`
+        } else {
+          chunks = Math.ceil(binding.value.length / maxLength)
+          el.innerHTML = vnode.context.getChunkText(binding.value, maxLength, chunks)
+        }
       }
     }
   },
-  created() {}
+  methods: {
+    getChunkText(message, maxLength, index){
+      let newMessage= ''
+      for(let i = 0; i < index; i++){
+        const newChunk = message.slice(i*maxLength, maxLength*(i+1))
+        if (i!==0) newMessage += '<br>'
+        newMessage += `<span> ${newChunk} </span>`
+      }
+      return newMessage
+    }
+  },
+  watch: {
+    messages: function(){
+      const chatArea = document.getElementsByClassName(this.chatContainer)[0]
+      chatArea.scrollTop = chatArea.scrollHeight
+    }
+  }
 };
 </script>
 

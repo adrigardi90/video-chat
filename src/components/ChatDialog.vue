@@ -33,7 +33,11 @@
         </div>
         <md-dialog-content>
           <p class="chat-dialog__title">Private chat with {{showDialog.user}}</p>
-          <ChatArea v-bind:messages="showDialog.msg"></ChatArea>
+          <ChatArea 
+            :messages="showDialog.msg"
+            :maxMessageLength="30"
+            :chatContainer="'md-dialog-content'">
+          </ChatArea>
         </md-dialog-content>
 
         <md-dialog-actions>
@@ -53,6 +57,7 @@
 <script>
 import ChatArea from "./ChatArea";
 import VideoArea from "./VideoArea";
+import { WS_EVENTS } from "./../utils/config";
 
 export default {
   name: "ChatDialog",
@@ -124,7 +129,7 @@ export default {
       if(typeof msg !== "object" && this.privateMessage.replace(/\s/g, "").length === 0) return
 
       console.log(`${this.$store.state.username} want to send a private message to ${this.showDialog.user}`);
-      this.$socket.emit("privateMessage", {
+      this.$socket.emit(WS_EVENTS.privateMessage, {
         privateMessage: msg,
         to: this.showDialog.user,
         from: this.$store.state.username,
@@ -155,7 +160,7 @@ export default {
       const val = newVal.chat;
       if (val && val !== oldVal.chat ) {
         // Open private chat
-        this.$socket.emit("joinPrivateRoom", {
+        this.$socket.emit(WS_EVENTS.joinPrivateRoom, {
           ...this.$store.state,
           to: this.showDialog.user
         });
