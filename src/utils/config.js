@@ -14,7 +14,8 @@ export const WS_EVENTS = {
     publicMessage: 'publicMessage',
     leavePrivateRoom: 'leavePrivateRoom',
     leaveChat: 'leaveChat',
-    changeStatus: 'changeStatus'
+    changeStatus: 'changeStatus',
+    privateMessage: 'privateMessage'
 }
 
 export const STATUS_OPTIONS = {
