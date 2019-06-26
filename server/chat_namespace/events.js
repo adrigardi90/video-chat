@@ -179,6 +179,10 @@ const privateMessagePCSignaling = (namespace) => ({ desc, to, from, room }) => {
     namespace.to(room).emit('privateMessagePCSignaling', { desc, to, from })
 }
 
+const disconnect = (socket) => () => {
+    console.log(`Socket ${socket.id} disconnected`);
+}
+
 module.exports = {
     joinRoom,
     publicMessage,
@@ -188,5 +192,6 @@ module.exports = {
     privateMessage,
     privateMessagePCSignaling,
     leaveChat,
-    changeStatus
+    changeStatus,
+    disconnect
 }

@@ -36,6 +36,9 @@ const onConnection = (socket) => {
     // Set status
     socket.on('changeStatus', events.changeStatus(socket, namespace))
 
+    // Disconnect
+    socket.on('disconnect', events.disconnect(socket, namespace))
+
 }
 
 exports.createNameSpace = (io) => {
