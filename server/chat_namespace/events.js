@@ -1,30 +1,6 @@
 
 const ChatRedis = require('../redis')
 
-const joinRoom = (socket, namespace) => ({ username, room, status }) => {
-    console.log(`user ${username} wants to join the room ${room}`);
-
-    // Join the room
-    socket.join(room, () => {
-        console.log(`user ${username} joined the room ${room}`);
-
-        // add user for the suitable ROOM
-        ChatRedis.addUser(room, socket.id, {
-            username,
-            status,
-            privateChat: false
-        })
-
-        ChatRedis.getUsers(room).then(users => {
-            if (users === null) return
-
-            // Notify all the users in the same room
-            namespace.in(room).emit('newUser', { users, username });
-        })
-    });
-
-}
-
 const changeStatus = (socket, namespace) => ({ username, status, room }) => {
     console.log(`user ${username} wants to change his status to ${status}`);
 
@@ -179,12 +155,7 @@ const privateMessagePCSignaling = (namespace) => ({ desc, to, from, room }) => {
     namespace.to(room).emit('privateMessagePCSignaling', { desc, to, from })
 }
 
-const disconnect = (socket) => () => {
-    console.log(`Socket ${socket.id} disconnected`);
-}
-
 module.exports = {
-    joinRoom,
     publicMessage,
     leaveRoom,
     joinPrivateRoom,
@@ -193,5 +164,4 @@ module.exports = {
     privateMessagePCSignaling,
     leaveChat,
     changeStatus,
-    disconnect
 }
