@@ -55,9 +55,18 @@ export default {
   }),
   async created() {
     this.username = this.$store.state.username;
+
     await this.getUserMedia();
-    this.addLocalStream();
     await this.getAudioVideo();
+
+    // Create peer connection
+    this.createPeerConnection();  
+    // Add local stream
+    this.addLocalStream();
+
+    // Event listeners
+    this.onIceCandidates();
+    this.onAddStream();
 
     !this.videoAnswer.video ? 
       this.callFriend() : // Caller
@@ -68,22 +77,13 @@ export default {
     this.remoteVideo = document.getElementById("remoteVideo");
   },
   methods: {
-    async callFriend() {
+    callFriend() {
       log(`${this.username} wants to start a call`);   
-      this.createPeerConnection();    
-      // Event listeners
-      this.onIceCandidates();
-      this.onAddStream();
-
-      await this.createOffer();
+        
+      this.createOffer();
     },
     async handleAnser() {
       log(`${this.username} gets an offer from ${this.videoAnswer.from}`);
-      this.createPeerConnection();
-
-      // Event listeners
-      this.onIceCandidates();
-      this.onAddStream();
 
       await this.setRemoteDescription(this.videoAnswer.remoteDesc);
       this.createAnswer();
