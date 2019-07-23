@@ -3,11 +3,10 @@ const express = require('express');
 const userRouter = express.Router();
 
 const ChatRedis = require('../redis')
+const config = require('../config')
 
-// We just want to store the logged users (username has to be unique)
+// config.KEY: We just want to store the logged users (username has to be unique)
 // so we always use the same key to adapt it to our Redis implementation
-const key = 'unique'
-
 
 // Login
 userRouter.post('/login', (req, res) => {
@@ -16,10 +15,10 @@ userRouter.post('/login', (req, res) => {
 
     console.log(`Login user ${newUser.username}`)
 
-    ChatRedis.getUser(newUser.username, key)
+    ChatRedis.getUser(newUser.username, config.KEY)
         .then(user => {
             if (user === null) {
-                ChatRedis.addUser(newUser.username, key, newUser)
+                ChatRedis.addUser(newUser.username, config.KEY, newUser)
                 console.log(`User ${newUser.username} logged`)
                 return res.send({ code: 200, message: 'Logged in succesfully' })
             }
@@ -35,12 +34,12 @@ userRouter.post('/logout', (req, res) => {
 
     console.log(`Logout user ${user.username}`)
 
-    ChatRedis.delUser(user.username, key)
-        .then( data => {
-            if(data === null) {
+    ChatRedis.delUser(user.username, config.KEY)
+        .then(data => {
+            if (data === null) {
                 return res.send({ code: 400, message: 'User not found' })
             }
-                
+
             return res.send({ code: 200, message: 'Logged in succesfully' })
         })
 })
