@@ -67,10 +67,15 @@ const onConnection = (socket) => {
     socket.on('disconnect', () => {
         console.log(`Socket ${socket.id} disconnected`);
         ChatRedis.getUser(userRoom, socket.id).then( user => {
-            events.leaveChat(socket, namespace)({
-                room: userRoom,
-                username: user.username
-            })
+            if(user !== null){
+                events.leaveChat(socket, namespace)({
+                    room: userRoom,
+                    username: user.username
+                })
+                return user
+            }
+        }).then( user => {
+            ChatRedis.delUser(user.username, config.KEY)
         })
     })
 
