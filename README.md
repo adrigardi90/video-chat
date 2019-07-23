@@ -34,10 +34,10 @@ exposing the API
 
 ```bash
 # Build the images
-docker-compose build
+docker-compose -f docker-compose.yml build
 
 # Create and run the two instances
-docker-compose up
+docker-compose -f docker-compose.yml up
 
 ```
 
