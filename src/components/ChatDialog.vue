@@ -206,6 +206,10 @@ button {
     flex-flow: column;
     flex: 1;
     width: 300px;
+
+    .md-dialog-content{
+      padding-bottom: 2rem;
+    }
   }
 
   &__left {

@@ -56,7 +56,7 @@ export default {
   watch: {
     messages: function(){
       const chatArea = document.getElementsByClassName(this.chatContainer)[0]
-      chatArea.scrollTop = chatArea.scrollHeight
+      chatArea.scrollTop = chatArea.scrollHeight + 100
     }
   }
 };
@@ -64,6 +64,7 @@ export default {
 
 <style lang="scss" scoped>
 .message {
+  padding-bottom: 2rem;
   &__text {
     width: max-content;
     padding: 0px 7px;
