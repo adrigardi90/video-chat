@@ -19,10 +19,11 @@ textarea {
 }
 
 .md-dialog {
-    top: calc(100vh - 180px);
     height: 350px;
+    bottom: 0;
     position: fixed;
-    right: 6px;
+    right: 0;
+    top: 100vh;
     transform: translate(0%, -50%);
     left: unset;
     &-container {

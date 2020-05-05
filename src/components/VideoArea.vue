@@ -31,8 +31,15 @@ export default {
 
     // Media config
     constraints: {
-      audio: true,
-      video: true
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true, 
+        autoGainControl: false
+      },
+      video: { 
+        width: 450, 
+        height: 348 
+      }
     },
 
     // local & remote video stream
@@ -194,14 +201,12 @@ export default {
     },
 
     onAddStream() {
-      this.pc.onaddstream = this.onAddBindStream.bind(this)
-    },
-    
-    onAddBindStream(event){
-        if(!this.remoteVideo.srcObject && event.stream){
+      this.pc.onaddstream = (event) => {
+       if(!this.remoteVideo.srcObject && event.stream){
           this.remoteStream = event.stream
           this.remoteVideo.srcObject = this.remoteStream ;
         }
+      }
     },
 
     addLocalStream(){
@@ -211,7 +216,7 @@ export default {
     resetConnection(){
       this.pc.close();
       this.pc = null;
-      //this.localStream.stop();
+      this.localStream.getTracks().forEach(track => track.stop())
       this.$emit("closeVideo");
     }
   },
@@ -246,8 +251,8 @@ export default {
     bottom: 0;
     position: absolute;
     float: right;
+    width: 130px;
     right: 0;
-    width: 150px;
     height: 100px;
     z-index: 2;
   }
