@@ -148,11 +148,11 @@ const privateMessage = (namespace) => ({ privateMessage, to, from, room }) => {
     namespace.to(room).emit('privateMessage', { to, privateMessage, from, room })
 }
 
-const privateMessagePCSignaling = (namespace) => ({ desc, to, from, room }) => {
+const privateMessagePCSignaling = (namespace) => ({ desc, to, from, room, candidate }) => {
     console.log(`User ${from} sends an offer ${to}`);
 
     // Private signaling to the user
-    namespace.to(room).emit('privateMessagePCSignaling', { desc, to, from })
+    namespace.to(room).emit('privateMessagePCSignaling', { desc, to, from, candidate })
 }
 
 module.exports = {
