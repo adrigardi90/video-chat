@@ -1,156 +1,177 @@
 
 const ChatRedis = require('../redis')
 
-const changeStatus = (socket, namespace) => ({ username, status, room }) => {
-    console.log(`user ${username} wants to change his status to ${status}`);
+const changeStatus = (socket, namespace) => async ({ username, status, room }) => {
+    console.log(`User "${username}" wants to change his status to ${status}`)
 
-    ChatRedis.getUser(room, socket.id)
-        .then(user => ChatRedis.setUser(room, socket.id, { ...user, status }))
-        .then(() => ChatRedis.getUsers(room))
-        .then(users => {
-            if (users === null) return
-            // Notify all the users in the same room
-            namespace.in(room).emit('newUser', { users, username });
-        })
+    try {
+        const user = await ChatRedis.getUser(room, username)
+        await ChatRedis.setUser(room, username, { ...user, status })
+        const users = await ChatRedis.getUsers(room)
+        // Notify all the users in the same room
+        namespace.in(room).emit('newUser', { users, username })
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 const publicMessage = (namespace) => ({ room, message, username }) => {
-    namespace.in(room).emit('newMessage', {
-        message,
-        username
-    });
+    namespace.in(room).emit('newMessage', { message, username })
 }
 
-const leaveRoom = (socket, namespace) => ({ room, username }) => {
-    console.log(`user ${username} wants to leave the room ${room}`);
+const conferenceInvitation = (namespace) => async ({ room, to, from }) => {
+    console.log(`Conference - Invitation from "${from}" to "${to}" in room ${room}`)
+    try {
+        const { privateChat, conference } = await ChatRedis.getUser(room, to)
+        // User already talking
+        if (privateChat || conference) {
+            console.log(`Conference - User "${to}" is already talking. PrivateChat: ${privateChat} - Conference: ${conference}`)
+            return namespace.to(from).emit('conferenceInvitation', { message: `User ${to} is already talking`, from })
+        }
+        namespace.in(room).emit('conferenceInvitation', { room, to, from })
+    } catch (error) {
+        console.log(error)
+    }
+}
 
-    socket.leave(room, () => {
-        console.log(`user ${username} left the room ${room}`);
+const joinConference = (socket, namespace) => ({ username, room, to, from }) => {
+    const admin = username === to
+    console.log(admin
+        ? `Conference - User "${username}" wants to open a conference room`
+        : `Conference - User "${username}" wants to join the "${to}" conference`)
 
-        ChatRedis.delUser(room, socket.id)
-            .then(data => {
-                if (data === null) return null
-                return ChatRedis.getUsers(room);
-            })
-            .then(users => {
-                if (users === null) return
+    // Join the room
+    socket.join(to, async () => {
+        if (!room) return
 
-                // Notify all the users in the same room
-                namespace.in(room).emit('newUser', { users, username });
-            })
-
+        try {
+            const user = await ChatRedis.getUser(room, username)
+            await ChatRedis.setUser(room, username, { ...user, conference: to })
+            console.log(admin
+                ? `Conference - User "${username}" opened a conference`
+                : `Conference - User "${username}" joined the "${to}" conference`)
+            namespace.in(to).emit('joinConference', { username, to, room, from })
+        } catch (error) {
+            console.log(error)
+        }
     })
 }
 
-const leaveChat = (socket, namespace) => ({ room, username }) => {
-    console.log(`user ${username} wants to leave the chat`);
+const leaveConference = (socket, namespace) => async ({ room, from, conferenceRoom }) => {
+    console.log(`Conference - User "${from}" wants to leave the conference room ${room}`)
 
-    ChatRedis.delUser(room, socket.id)
-        .then(data => {
-            if (data === null) return null
-            return ChatRedis.getUsers(room);
+    try {
+        const user = await ChatRedis.getUser(room, from)
+        await ChatRedis.setUser(room, from, { ...user, conference: false })
+        socket.leave(conferenceRoom, () => {
+            namespace.to(conferenceRoom).emit('leaveConference', { room, from })
+            console.log(`Conference - User ${from} left the conference room ${room}`)
         })
-        .then(users => {
-            if (users === null) return
+    } catch (error) {
+        console.log(error)
+    }
+}
 
-            // Notify all the users in the same room
-            namespace.in(room).emit('leaveChat', { users, username });
-
-            // Leave the socket
-            socket.leave(room, () => {
-                console.log(`user ${username} left the room ${room}`);
-            })
-        })
+const PCSignalingConference = (namespace) => ({ desc, to, from, room, candidate }) => {
+    candidate
+        ? console.log(`Conference - User "${from}" sends a candidate to "${to}"`)
+        : console.log(`Conference - User "${from}" sends a ${from === room ? 'offer' : 'answer'} to "${to}"`)
+    namespace.to(room).emit('PCSignalingConference', { desc, to, from, candidate })
 }
 
 
-const joinPrivateRoom = (socket, namespace) => ({ username, room, to }) => {
-    console.log(`user ${username} wants to have a private chat with ${to}`);
+const leaveRoom = (socket, namespace) => ({ room, username }) => {
+    console.log(`Room - User "${username}" wants to leave the room ${room}`)
+
+    socket.leave(room, async () => {
+        console.log(`Room - User "${username}" left the room ${room}`)
+
+        try {
+            await ChatRedis.delUser(room, username)
+            const users = await ChatRedis.getUsers(room)
+            // Notify all the users in the same room
+            namespace.in(room).emit('newUser', { users, username })
+        } catch (error) {
+            console.log(error)
+        }
+    })
+}
+
+const leaveChat = (socket, namespace) => async ({ room, username }) => {
+    console.log(`User "${username}" wants to leave the chat`)
+
+    try {
+        await ChatRedis.delUser(room, username)
+        const users = await ChatRedis.getUsers(room)
+        // Leave the socket
+        socket.leave(room, () => {
+            console.log(`User "${username}" left the room ${room}`)
+            // Notify all the users in the same room
+            namespace.in(room).emit('leaveChat', { users, message: `${username} left the room`})
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const joinPrivateRoom = (socket, namespace) => ({ username, room, to, from, joinConfirmation }) => {
+    console.log(`Private chat - User "${username}" ${!joinConfirmation
+        ? 'wants to have a' : 'accept the private'} chat with with "${to}"`)
 
     // Join the room
-    socket.join(to, () => {
+    socket.join(to, async () => {
+        if (!room) return
 
-        if (room !== null) {
-
-            ChatRedis.getUser(room, socket.id)
-                .then(user => {
-
-                    if (user === null) return null
-
-                    // If he is already talking
-                    if (user.privateChat) {
-
-                        namespace.to(to).emit('leavePrivateRoom', {
-                            to,
-                            privateMessage: `${to} is already talking`,
-                            from: username,
-                            room
-                        })
-
-                        socket.leave(to, () => {
-                            console.log(`user ${username} force to left the room ${to}`);
-                        })
-
-                        return null;
-                    }
-
-                    return ChatRedis.setUser(room, socket.id, {
-                        ...user,
-                        privateChat: true
-                    })
+        try {
+            const { privateChat } = await ChatRedis.getUser(room, to)
+            if (!!privateChat && privateChat !== username) {
+                namespace.to(to).emit('leavePrivateRoom', {
+                    to, room,
+                    privateMessage: `${to} is already talking`,
+                    from: username,
                 })
-                .then(res => {
-                    if (res === null) return
+                // Leave the room
+                socket.leave(to, () => console.log(`Private chat - User "${username}" forced to leave the room "${to}"`))
+                return
+            }
 
-                    // Notify the user to talk with (in the same main room)
-                    namespace.in(room).emit('privateChat', {
-                        username,
-                        to
-                    });
-
-                })
+            const user = await ChatRedis.getUser(room, username)
+            await ChatRedis.setUser(room, username, { ...user, privateChat: to })
+            if (!joinConfirmation) namespace.in(room).emit('privateChat', { username, to, room, from })
+        } catch (error) {
+            console.log(error)
         }
-    });
+    })
 }
 
-const leavePrivateRoom = (socket, namespace) => ({ room, from, to }) => {
-    console.log(`user ${from} wants to leave the private chat with ${to}`);
+const leavePrivateRoom = (socket, namespace) => async ({ room, from, to }) => {
+    console.log(`Private chat - User "${from}" wants to leave the private chat with "${to}"`)
 
-    ChatRedis.getUser(room, socket.id)
-        .then(user => {
-            if (user === null) return
-
-            return ChatRedis.setUser(room, socket.id, {
-                ...user,
-                privateChat: false
-            })
-        })
-        .then(res => {
-            if (res === null) return
-
+    try {
+        const user = await ChatRedis.getUser(room, from)
+        await ChatRedis.setUser(room, from, { ...user, privateChat: false })
+        socket.leave(to, () => {
+            console.log(`Private chat - User "${from}" left the private chat with "${to}"`)
             namespace.to(to).emit('leavePrivateRoom', {
-                to,
-                privateMessage: `${to} has closed the chat`,
-                from
+                to, from,
+                privateMessage: `${from} has closed the chat`,
             })
-
-            socket.leave(to, () => {
-                console.log(`user ${from} left the private chat with ${to}`);
-            })
-
         })
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 const privateMessage = (namespace) => ({ privateMessage, to, from, room }) => {
-    console.log(`User ${from} wants sends a message to ${to}`);
-
+    console.log(`Private chat - User "${from}" sends a private message to "${to}"`)
     // Private message to the user
     namespace.to(room).emit('privateMessage', { to, privateMessage, from, room })
 }
 
 const privateMessagePCSignaling = (namespace) => ({ desc, to, from, room, candidate }) => {
-    console.log(`User ${from} sends an offer ${to}`);
-
+    candidate
+        ? console.log(`Private chat - User "${from}" sends a candidate to "${to}"`)
+        : console.log(`Private chat - User "${from}" sends a ${from !== room ? 'offer' : 'answer'} to "${to}"`)
     // Private signaling to the user
     namespace.to(room).emit('privateMessagePCSignaling', { desc, to, from, candidate })
 }
@@ -164,4 +185,8 @@ module.exports = {
     privateMessagePCSignaling,
     leaveChat,
     changeStatus,
+    conferenceInvitation,
+    joinConference,
+    leaveConference,
+    PCSignalingConference
 }

@@ -20,19 +20,19 @@
 export default {
   name: "MessageArea",
   props: {},
-  data: function() {
-    return {
-      message: ""
-    };
-  },
+  data: () => ({
+    message: ""
+  }),
   methods: {
     sendMessage() {
       const msg = this.message.replace(/\n/g,'')
-      this.$emit("send-message", msg);
-      this.message = "";
+      // Do not send empty messages
+      if(msg.replace(/\s/g, "").length === 0) return
+      this.$emit("send-message", msg)
+      this.message = ""
     }
   }
-};
+}
 </script>
 
 

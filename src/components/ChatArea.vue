@@ -59,7 +59,7 @@ export default {
       chatArea.scrollTop = chatArea.scrollHeight + 100
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>
