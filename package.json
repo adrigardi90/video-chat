@@ -1,5 +1,6 @@
 {
-  "name": "video",
+  "name": "video-chat",
+  "description" : "Chat with 1 to 1 and many to many video functionality",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -16,15 +17,16 @@
     "http": "0.0.0",
     "path": "^0.12.7",
     "socket.io": "^2.2.0",
-    "socket.io-client": "^2.2.0",
+    "socket.io-client": "^2.3.0",
     "socket.io-redis": "^5.2.0",
     "vue": "^2.5.21",
-    "vue-loading-spinner": "^1.0.11",
     "vue-material": "^1.0.0-beta-10.2",
     "vue-resource": "^1.5.1",
     "vue-router": "^3.0.1",
     "vue-socket.io": "^3.0.5",
-    "vuex": "^3.0.1"
+    "vue-toastr": "^2.1.2",
+    "vuex": "^3.0.1",
+    "webrtc-adapter": "^7.5.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.3.0",

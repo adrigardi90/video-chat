@@ -37,54 +37,46 @@
 </template>
 
 <script>
-import { url, STORE_ACTIONS } from "./../utils/config";
+import { STORE_ACTIONS } from "./../utils/config"
 
 export default {
   name: "home",
-  data: function() {
-    return {
-      username: undefined,
-      room: undefined,
-      rooms: [],
-      error: undefined,
-      defaultError: 'Something went wrong' 
-    };
+  sockets:{
+    connect() {
+      this.$router.push("/chat")
+    }
   },
+  data: () => ({
+    username: undefined,
+    room: undefined,
+    rooms: [],
+    error: undefined,
+    defaultError: 'Something went wrong' 
+  }),
   async created() {
     try {
-      const data = await this.$http.get(`http://${url}/rooms`)
-      this.rooms = data.body;
-      this.$store.dispatch(STORE_ACTIONS.setRooms, this.rooms)
+      this.rooms  = await this.$store.dispatch(STORE_ACTIONS.setRooms)
     } catch (error) {
       this.error = this.defaultError
-      console.log(error);
     }
   },
   methods: {
     async submitForm() {
-      if(!(this.username && this.room)) return;
+      if(!(this.username && this.room)) return
       this.error = undefined
       
-      const data = {
-        room: this.room,
-        username: this.username
-      }
-
       try {
-        let response = await this.$http.post(`http://${url}/auth/login`, data)
-        if (response.body.code === 400 || response.body.code === 401 || response.body.code === 500) {
-          this.error = response.body.message
-          return 
-        }
-        this.$store.dispatch(STORE_ACTIONS.joinRoom, data)
-        this.$router.push("/chat")
+        await this.$store.dispatch(STORE_ACTIONS.joinRoom, {
+          room: this.room,
+          username: this.username
+        })
+        this.$socket.open()
       } catch (error) {
-        this.error = this.defaultError
-        console.log(error)
+        this.error = error.message ? error.message : this.defaultError
       }
     }
   }
-};
+}
 </script>
 
 <style lang="scss">

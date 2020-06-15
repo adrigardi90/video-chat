@@ -18,7 +18,7 @@ services:
     build: 
       context: .
       args:
-        VUE_APP_SOCKET_HOST: localhost
+        VUE_APP_SOCKET_HOST: http://localhost
         VUE_APP_SOCKET_PORT: 3000 
     ports: 
       - 3000:3000
@@ -36,7 +36,7 @@ services:
     build: 
       context: .
       args:
-        VUE_APP_SOCKET_HOST: localhost
+        VUE_APP_SOCKET_HOST: http://localhost
         VUE_APP_SOCKET_PORT: 3001 
     ports: 
       - 3001:3001
@@ -46,6 +46,24 @@ services:
       - redis
     environment:
       PORT: 3001
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+  # Copy 3
+  chat3:
+    build: 
+      context: .
+      args:
+        VUE_APP_SOCKET_HOST: http://localhost
+        VUE_APP_SOCKET_PORT: 3002 
+    ports: 
+      - 3002:3002
+    networks:
+      - video-chat
+    depends_on:
+      - redis
+    environment:
+      PORT: 3002
       REDIS_HOST: redis
       REDIS_PORT: 6379
   

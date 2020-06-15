@@ -4,12 +4,12 @@ const bluebird = require('bluebird')
 const config = require('./../config/')
 
 // Using promises
-bluebird.promisifyAll(redis);
+bluebird.promisifyAll(redis)
 
 function ChatRedis() {
     this.client = redis.createClient({
         host: config.REDIS_HOST
-    });
+    })
 }
 
 /**
@@ -19,10 +19,12 @@ function ChatRedis() {
  * @param  {} userObject
  */
 ChatRedis.prototype.addUser = function (room, socketId, userObject) {
-    this.client.hsetAsync(room, socketId, JSON.stringify(userObject)).then(
-        () => console.debug('addUser ', userObject.username + ' added to the room ' + room),
-        err => console.log('addUser', err)
-    );
+    this.client
+        .hsetAsync(room, socketId, JSON.stringify(userObject))
+        .then(
+            () => console.debug('addUser ', userObject.username + ' added to the room ' + room),
+            err => console.log('addUser', err)
+        )
 }
 
 /**
@@ -30,33 +32,31 @@ ChatRedis.prototype.addUser = function (room, socketId, userObject) {
  * @param  {} room
  */
 ChatRedis.prototype.getUsers = function (room) {
-    return this.client.hgetallAsync(room).then(users => {
-        const userList = []
-
-        for (let user in users) {
-            userList.push(JSON.parse(users[user]))
-        }
-
-        return userList
-    }, error => {
-        console.log('getUsers ', error)
-        return null
-    })
+    return this.client
+        .hgetallAsync(room)
+        .then(users => {
+            const userList = []
+            for (let user in users) {
+                userList.push(JSON.parse(users[user]))
+            }
+            return userList
+        }, error => {
+            console.log('getUsers ', error)
+        })
 }
 
 /**
- * Deleter a user in a room with socketId
+ * Delete a user in a room with socketId
  * @param  {} room
  * @param  {} socketId
  */
-ChatRedis.prototype.delUser = function(room, socketId){
-    return this.client.hdelAsync(room, socketId).then(
-        res => (res),
-        err => {
-            console.log('delUser ', err)
-            return null
-        } 
-    )
+ChatRedis.prototype.delUser = function (room, socketId) {
+    return this.client
+        .hdelAsync(room, socketId)
+        .then(
+            res => (res),
+            err => { console.log('delUser ', err) }
+        )
 }
 
 /**
@@ -64,14 +64,25 @@ ChatRedis.prototype.delUser = function(room, socketId){
  * @param  {} room
  * @param  {} socketId
  */
-ChatRedis.prototype.getUser = function(room, socketId){
-    return this.client.hgetAsync(room, socketId).then(
-        res => JSON.parse(res),
-        err => {
-            console.log('getUser ', err)
-            return null
-        }
-    )
+ChatRedis.prototype.getUser = function (room, socketId) {
+    return this.client
+        .hgetAsync(room, socketId)
+        .then(
+            res => JSON.parse(res),
+            err => { console.log('getUser ', err) }
+        )
+}
+
+/**
+ * Get number of clients connected in a room
+ */
+ChatRedis.prototype.getClientsInRoom = function (io, namespace, room) {
+    return new Promise((resolve, reject) => {
+        io.of(namespace).adapter.clients([room], (err, clients) => {
+            if (err) reject(err)
+            resolve(clients.length)
+        })
+    })
 }
 
 /**
@@ -80,14 +91,13 @@ ChatRedis.prototype.getUser = function(room, socketId){
  * @param  {} socketId
  * @param  {} newValue
  */
-ChatRedis.prototype.setUser = function(room, socketId, newValue){
-    return this.client.hsetAsync(room, socketId, JSON.stringify(newValue)).then(
-        res => res,
-        err => {
-            console.log('setUser', err)
-            return null
-        }
-    )
+ChatRedis.prototype.setUser = function (room, socketId, newValue) {
+    return this.client
+        .hsetAsync(room, socketId, JSON.stringify(newValue))
+        .then(
+            res => res,
+            err => { console.log('setUser', err) }
+        )
 }
 
 module.exports = new ChatRedis()

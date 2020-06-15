@@ -17,7 +17,7 @@
             class="md-icon-button md-list-action"
             v-if="$store.state.username !== user.username"
             @click="openChat(user.username)"
-            :disabled="openPrivateChat === true">
+            :disabled="openPrivateChat">
             <md-icon class="md-primary">chat_bubble</md-icon>
           </md-button>
         </md-list-item>
@@ -28,7 +28,7 @@
 
 
 <script>
-import { STORE_ACTIONS, STATUS_OPTIONS, WS_EVENTS } from "./../utils/config";
+import { STORE_ACTIONS, STATUS_OPTIONS, WS_EVENTS } from "./../utils/config"
 
 export default {
   name: "UserList",
@@ -36,24 +36,21 @@ export default {
     users: Array,
     openPrivateChat: Boolean
   },
-  data: function() {
-    return {
-      status: {
-        available_status: "#05b105",
-        absent_status: "#f7bb04",
-        unavailable_status: "#bb0000"
-      }
-    };
-  },
-  created() {},
+  data: () => ({
+    status: {
+      available_status: "#05b105",
+      absent_status: "#f7bb04",
+      unavailable_status: "#bb0000"
+    }
+  }),
   methods: {
     openChat(user) {
-      this.$emit("open-chat", user);
+      this.$emit("open-chat", user)
     },
     changeStatus() {
       this.$store.dispatch(STORE_ACTIONS.changeStatus).then( ()=> {
-        this.$socket.emit(WS_EVENTS.changeStatus, this.$store.state);
-      });
+        this.$socket.emit(WS_EVENTS.changeStatus, this.$store.state)
+      })
     }
   },
   computed: {
@@ -62,10 +59,10 @@ export default {
         available: this.$store.state.status === STATUS_OPTIONS.available,
         absent: this.$store.state.status === STATUS_OPTIONS.absent,
         unavailable: this.$store.state.status === STATUS_OPTIONS.unavailable
-      };
+      }
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

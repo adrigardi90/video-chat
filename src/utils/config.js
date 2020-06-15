@@ -1,4 +1,4 @@
-export const url = `${process.env.VUE_APP_SOCKET_HOST || 'localhost'}:${process.env.VUE_APP_SOCKET_PORT || '3000'}`
+export const url = `${process.env.VUE_APP_SOCKET_HOST || 'http://localhost'}:${process.env.VUE_APP_SOCKET_PORT || '3000'}`
 
 export const STORE_ACTIONS = {
     joinRoom: 'joinRoom',
@@ -15,11 +15,21 @@ export const WS_EVENTS = {
     leavePrivateRoom: 'leavePrivateRoom',
     leaveChat: 'leaveChat',
     changeStatus: 'changeStatus',
-    privateMessage: 'privateMessage'
+    privateMessage: 'privateMessage',
+    privateMessagePCSignaling: 'privateMessagePCSignaling',
+    PCSignalingConference: 'PCSignalingConference',
+    conferenceInvitation: 'conferenceInvitation',
+    joinConference: 'joinConference',
+    leaveConference: 'leaveConference'
 }
 
 export const STATUS_OPTIONS = {
     available: 'available',
     absent: 'absent',
     unavailable: 'unavailable'
+}
+
+export const DESCRIPTION_TYPE = {
+    offer: 'offer',
+    answer: 'answer'
 }

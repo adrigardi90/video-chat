@@ -16,16 +16,9 @@
         <div class="chat-dialog__options">
           <md-button
             class="md-icon-button chat-dialog__video"
-            @click="video(true)"
-            :disabled="showDialog.msg.length === 0"
-            v-if="!this.videoCall">
-            <md-icon>video_call</md-icon>
-          </md-button>
-          <md-button
-            class="md-icon-button chat-dialog__video"
-            @click="videoAnswer = {...videoAnswer, close: true}"
-            v-if="this.videoCall">
-            <md-icon>videocam_off</md-icon>
+            @click="video(!videoCall)"
+            :disabled="showDialog.msg.length === 0">
+            <md-icon>{{videoCall ? 'videocam_off' : 'video_call' }}</md-icon>
           </md-button>
           <md-button class="md-icon-button chat-dialog__exit" @click="closeChat()">
             <md-icon>close</md-icon>
@@ -55,9 +48,9 @@
 
 
 <script>
-import ChatArea from "./ChatArea";
-import VideoArea from "./VideoArea";
-import { WS_EVENTS } from "./../utils/config";
+import ChatArea from "./ChatArea"
+import VideoArea from "./VideoArea"
+import { WS_EVENTS, DESCRIPTION_TYPE } from "./../utils/config"
 
 export default {
   name: "ChatDialog",
@@ -70,28 +63,22 @@ export default {
   },
   sockets: {
     privateMessagePCSignaling: function({ desc, from, candidate }) {
-      if (from !== this.$store.state.username) {
-        try {
-          if (desc) {
+      if (from === this.$store.state.username) return
 
-            // If we have an income call
-            if (desc.type === "offer") {
-              this.openChat(desc, from)
-              // If we have a response
-            } else if (desc.type === "answer") {
-              this.videoAnswer = { ...this.videoAnswer, remoteDesc: desc };
-            } else {
-              console.log("Unsupported SDP type");
-            }
-           
-           // Candidate
-          } else if (candidate) {
-            this.videoAnswer = { ...this.videoAnswer, candidate };
-          }
-
-        } catch (error) {
-          console.log(error);
+      if (desc) {
+        if (desc.type === DESCRIPTION_TYPE.offer) { // If we have an income call
+          this.openChat(desc, from)
+        } else if (desc.type === DESCRIPTION_TYPE.answer) { // If we have a response
+          this.videoAnswer = { ...this.videoAnswer, remoteDesc: desc }
+        } else {
+          console.log("Unsupported SDP type")
         }
+      // Candidate
+      } else if (candidate) {
+        this.videoAnswer = { ...this.videoAnswer, candidate }
+      // Other peer has closed the video
+      } else {
+        this.videoCall = false
       }
     }
   },
@@ -105,69 +92,65 @@ export default {
         candidate: undefined,
         close: false
       }
-    };
+    }
   },
   methods: {
     closeChat() {
-      if(this.videoCall) this.resetVideoAnswer()
       this.videoCall = false
-      this.privateMessage = ''
-      this.$emit("close-chat");
+      this.$socket.emit(WS_EVENTS.leavePrivateRoom, {
+        room: this.$store.state.room,
+        to: this.showDialog.room,
+        from: this.$store.state.username
+      })
+      this.$emit("close-chat")
     },
     openChat(description, from){
-      //open videochat (maybe ask before?)
-      this.videoAnswer = {
-        ...this.videoAnser,
-        video: true,
-        remoteDesc: description,
-        from
-      };
-      this.videoCall = true;
+      this.videoAnswer = { ...this.videoAnser, video: true, remoteDesc: description, from }
+      this.videoCall = true
     },
     sendPrivateMessage(msg) {
       // Do not send empty messages
       if(typeof msg !== "object" && this.privateMessage.replace(/\s/g, "").length === 0) return
 
-      console.log(`${this.$store.state.username} want to send a private message to ${this.showDialog.user}`);
       this.$socket.emit(WS_EVENTS.privateMessage, {
         privateMessage: msg,
         to: this.showDialog.user,
         from: this.$store.state.username,
         room: this.showDialog.room
-      });
-
-      this.privateMessage = "";
+      })
+      this.privateMessage = ""
     },
     video(value) {
-      this.videoCall = value;
-      value 
-        ? this.videoAnswer = { ...this.videoAnswer, video: !value }
-        : this.resetVideoAnswer();
-    },
-    resetVideoAnswer() {
-      this.videoAnswer = {
-        ...this.videoAnswer,
-        video: undefined,
-        remoteDesc: undefined,
-        candidate: undefined,
-        close: false
-      };
-      this.sendPrivateMessage({msg:`${this.$store.state.username} has closed the video`})
+      this.videoCall = value
+      if (value) this.videoAnswer = { ...this.videoAnswer, video: !value }
+      else this.sendPrivateMessage({msg:`${this.$store.state.username} has closed the video`})
     },
   },
   watch: {
-    showDialog: function(newVal, oldVal) {
-      const val = newVal.chat;
-      if (val && val !== oldVal.chat ) {
-        // Open private chat
-        this.$socket.emit(WS_EVENTS.joinPrivateRoom, {
-          ...this.$store.state,
-          to: this.showDialog.user
-        });
+    showDialog: function({ chat }, oldVal) {
+      if (chat && chat !== oldVal.chat ) {
+        // Peer openning private chat
+        if (this.showDialog.room !== this.$store.state.username){
+            this.$socket.emit(WS_EVENTS.joinPrivateRoom, {
+              ...this.$store.state,
+              to: this.showDialog.user,
+              from: this.$store.state.username,
+            })
+        }
+        // Peer receiving a private chat request
+        if (this.showDialog.room === this.$store.state.username) {
+          this.$socket.emit(WS_EVENTS.joinPrivateRoom, {
+            ...this.$store.state,
+            // to: this.showDialog.user, 
+            to: this.$store.state.username, 
+            from: this.$store.state.username,
+            joinConfirmation: true
+          })
+        }
       }
     }
   }
-};
+}
 </script>
 
 
