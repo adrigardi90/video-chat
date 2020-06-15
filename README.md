@@ -27,7 +27,7 @@ Then visit http://localhost:8080 in your browser
 To test out the horizontal scaling we'll create 3 different instances. Each one running a unique nodeJS process serving the FE and exposing the API
 
 <p align="center">
-  <img src="https://github.com/adrigardi90/video-chat/blob/master/src/assets/local_env.png" alt="scaling" width="500" height="250"/>
+  <img src="https://github.com/adrigardi90/video-chat/blob/master/src/assets/local_env.png" alt="scaling" width="500" height="460"/>
 </p>
 
 
